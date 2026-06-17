@@ -72,6 +72,8 @@ AWS_ENDPOINT_URL=http://localhost:8000 npm run test:integration --prefix src/van
 
 ## Deployment
 
+Deployment instructions are the intended path and may be updated as implementation progresses.
+
 ### 1. Build
 
 ```bash

@@ -23,7 +23,7 @@ The key decisions I had to lock before implementation:
 
 ---
 
-## Shortcuts and What I'd Change in Production
+## Planned Shortcuts and Tradeoffs
 
 ### Shortcuts Taken
 
