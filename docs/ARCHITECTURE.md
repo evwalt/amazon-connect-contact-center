@@ -58,6 +58,7 @@ DynamoDB: VanityCallLog
 **Timeout:** 8 seconds (set in SAM template; configured to 8s in the Connect contact flow block)
 
 Responsibilities:
+
 1. Parse the caller's E.164 phone number from the Connect event.
 2. Generate vanity candidates for the 7-digit subscriber portion of the number.
 3. Score and rank candidates using the scoring formula (see [DECISIONS.md](DECISIONS.md)).
@@ -71,6 +72,7 @@ Responsibilities:
 **Timeout:** 5 seconds
 
 Responsibilities:
+
 1. Query the DynamoDB GSI `TimestampIndex` for the 5 most recent call records.
 2. Return structured JSON for the web app.
 
@@ -96,6 +98,7 @@ Responsibilities:
 | `timestamp` | String | Sort key |
 
 Query pattern for web app:
+
 ```
 KeyConditionExpression: gsiPk = "CALL"
 ScanIndexForward: false

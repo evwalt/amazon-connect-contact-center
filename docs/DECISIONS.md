@@ -20,6 +20,7 @@ score = (word_count * 10) + longest_word_length
 The top 5 by score are stored; the top 3 are spoken.
 
 **Example:** For `+1-800-569-3377`:
+
 - Alpha mapping: `567-3377` → candidates include `FLOWERS` (7 letters, 1 word)
 - `score = (1 * 10) + 7 = 17`
 
@@ -65,6 +66,7 @@ The call log grows unboundedly. In production, a TTL attribute would automatical
 ### Decision
 
 Single table `VanityCallLog` with:
+
 - Base table PK: `callerNumber`, SK: `timestamp`
 - GSI `TimestampIndex`: fixed PK `gsiPk = "CALL"`, SK `timestamp`
 

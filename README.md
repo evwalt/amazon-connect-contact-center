@@ -85,6 +85,7 @@ sam deploy --guided
 ```
 
 This will prompt for:
+
 - Stack name (e.g., `vanity-numbers-dev`)
 - AWS region
 - Amazon Connect instance ARN
