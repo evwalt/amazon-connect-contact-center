@@ -1,6 +1,4 @@
-'use strict';
-
-const { extractSubscriberDigits, generateCandidates, KEYPAD } = require('../../src/vanity-converter/converter');
+import { extractSubscriberDigits, generateCandidates, KEYPAD } from '../../src/vanity-converter/converter';
 
 describe('extractSubscriberDigits', () => {
   test('extracts last 7 digits from E.164 format', () => {

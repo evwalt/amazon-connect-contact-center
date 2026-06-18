@@ -1,6 +1,4 @@
-'use strict';
-
-const { rankCandidates, findSubstrings, longestAlphaRun } = require('../../src/vanity-converter/scorer');
+import { rankCandidates, findSubstrings, longestAlphaRun } from '../../src/vanity-converter/scorer';
 
 const WORDS = new Set(['CALL', 'ALL', 'LOVE', 'LOW', 'FLOW', 'FLOWER', 'FLOWERS', 'OWE', 'LOWER', 'FLY', 'HOME', 'HELP']);
 const BLOCKLIST = new Set(['DAMN', 'HELL', 'SHIT']);
@@ -63,25 +61,25 @@ describe('longestAlphaRun', () => {
 describe('rankCandidates', () => {
   test('returns top N candidates (default 5)', () => {
     const candidates = ['FLOWERS', 'AAAAAAA', 'BBBBBBB', 'CCCCCCC', 'DDDDDDD', 'EEEEEEE'];
-    const result = rankCandidates(candidates, WORDS, new Set());
+    const result = rankCandidates(candidates, WORDS, new Set<string>());
     expect(result).toHaveLength(5);
   });
 
   test('respects custom limit', () => {
     const candidates = ['FLOWERS', 'CALLXYZ', 'LOVEXYZ', 'HOMEXYZ', 'HELPXYZ', 'LOWXYZZ'];
-    const result = rankCandidates(candidates, WORDS, new Set(), 3);
+    const result = rankCandidates(candidates, WORDS, new Set<string>(), 3);
     expect(result).toHaveLength(3);
   });
 
   test('candidate with more words ranks above candidate with fewer', () => {
     // FLOWERS contains FLOW, FLOWER, FLOWERS, LOW, LOWER, OWE = 6 words → primary = 67
     // CALLXYZ contains CALL, ALL = 2 words → primary = 24
-    const result = rankCandidates(['CALLXYZ', 'FLOWERS'], WORDS, new Set());
+    const result = rankCandidates(['CALLXYZ', 'FLOWERS'], WORDS, new Set<string>());
     expect(result[0]).toBe('FLOWERS');
   });
 
   test('candidate with no words gets primary score 0', () => {
-    const result = rankCandidates(['ZZZZZZZ'], WORDS, new Set());
+    const result = rankCandidates(['ZZZZZZZ'], WORDS, new Set<string>());
     expect(result).toHaveLength(1);
     expect(result[0]).toBe('ZZZZZZZ');
   });
@@ -90,7 +88,7 @@ describe('rankCandidates', () => {
     // Both have no dictionary words (primary = 0), so secondary (alpha run) decides
     // 'AAAZ0AA' has runs: 3, 2 → longest = 3
     // 'AAAAZAA' has runs: 4, 2 → longest = 4
-    const result = rankCandidates(['AAAZ0AA', 'AAAAZAA'], WORDS, new Set());
+    const result = rankCandidates(['AAAZ0AA', 'AAAAZAA'], WORDS, new Set<string>());
     expect(result[0]).toBe('AAAAZAA');
   });
 
@@ -108,12 +106,12 @@ describe('rankCandidates', () => {
   });
 
   test('when fewer candidates than limit exist, returns all non-blocklisted', () => {
-    const result = rankCandidates(['FLOWERS', 'CALLXYZ'], WORDS, new Set(), 5);
+    const result = rankCandidates(['FLOWERS', 'CALLXYZ'], WORDS, new Set<string>(), 5);
     expect(result).toHaveLength(2);
   });
 
   test('returns results as strings in an array', () => {
-    const result = rankCandidates(['FLOWERS'], WORDS, new Set());
+    const result = rankCandidates(['FLOWERS'], WORDS, new Set<string>());
     expect(Array.isArray(result)).toBe(true);
     expect(typeof result[0]).toBe('string');
   });
@@ -121,7 +119,7 @@ describe('rankCandidates', () => {
   test('FLOWERS scores correctly: 6 words found, longest is 7 chars', () => {
     // primary = 6 * 10 + 7 = 67
     // Verify FLOWERS beats a candidate with 1 word of length 4 (primary = 14)
-    const result = rankCandidates(['CALLXYZ', 'FLOWERS'], WORDS, new Set(), 2);
+    const result = rankCandidates(['CALLXYZ', 'FLOWERS'], WORDS, new Set<string>(), 2);
     expect(result[0]).toBe('FLOWERS');
     expect(result[1]).toBe('CALLXYZ');
   });

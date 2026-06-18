@@ -5,8 +5,8 @@ const MAX_WORD_LEN = 7;
  * Returns all substrings of `candidate` (length 3–7) that exist in `lookupSet`.
  * Works for both the word set (scoring) and the blocklist (filtering).
  */
-function findSubstrings(candidate, lookupSet) {
-  const found = new Set();
+function findSubstrings(candidate: string, lookupSet: Set<string>): Set<string> {
+  const found = new Set<string>();
   for (let start = 0; start < candidate.length; start++) {
     for (
       let len = MIN_WORD_LEN;
@@ -25,7 +25,7 @@ function findSubstrings(candidate, lookupSet) {
  * candidate. Used as a secondary sort key when primary scores are equal —
  * naturally handles numbers with no dictionary words.
  */
-function longestAlphaRun(candidate) {
+function longestAlphaRun(candidate: string): number {
   let max = 0;
   let current = 0;
   for (const ch of candidate) {
@@ -39,6 +39,12 @@ function longestAlphaRun(candidate) {
   return max;
 }
 
+interface ScoredCandidate {
+  candidate: string;
+  primary: number;
+  secondary: number;
+}
+
 /**
  * Scores and ranks vanity candidates.
  *
@@ -48,14 +54,19 @@ function longestAlphaRun(candidate) {
  *
  * Candidates that contain any blocklist substring are discarded before scoring.
  *
- * @param {string[]} candidates - All possible alpha representations of the subscriber digits.
- * @param {Set<string>} wordSet - Dictionary word set (uppercase).
- * @param {Set<string>} blocklistSet - Offensive word set (uppercase).
- * @param {number} limit - Number of results to return (default 5).
- * @returns {string[]} Top `limit` candidates ordered best → worst.
+ * @param candidates - All possible alpha representations of the subscriber digits.
+ * @param wordSet - Dictionary word set (uppercase).
+ * @param blocklistSet - Offensive word set (uppercase).
+ * @param limit - Number of results to return (default 5).
+ * @returns Top `limit` candidates ordered best → worst.
  */
-function rankCandidates(candidates, wordSet, blocklistSet, limit = 5) {
-  const scored = [];
+function rankCandidates(
+  candidates: string[],
+  wordSet: Set<string>,
+  blocklistSet: Set<string>,
+  limit = 5,
+): string[] {
+  const scored: ScoredCandidate[] = [];
 
   for (const candidate of candidates) {
     if (findSubstrings(candidate, blocklistSet).size > 0) continue;
@@ -72,11 +83,9 @@ function rankCandidates(candidates, wordSet, blocklistSet, limit = 5) {
     });
   }
 
-  scored.sort(
-    (a, b) => b.primary - a.primary || b.secondary - a.secondary
-  );
+  scored.sort((a, b) => b.primary - a.primary || b.secondary - a.secondary);
 
   return scored.slice(0, limit).map((s) => s.candidate);
 }
 
-module.exports = { rankCandidates, findSubstrings, longestAlphaRun };
+export { rankCandidates, findSubstrings, longestAlphaRun };

@@ -1,9 +1,7 @@
-'use strict';
-
-const { getWordSet, getBlocklistSet } = require('../../src/vanity-converter/wordlist');
+import { getWordSet, getBlocklistSet } from '../../src/vanity-converter/wordlist';
 
 describe('getWordSet', () => {
-  let wordSet;
+  let wordSet!: Set<string>;
   beforeAll(() => { wordSet = getWordSet(); });
 
   test('returns a Set', () => {
@@ -47,7 +45,7 @@ describe('getWordSet', () => {
 });
 
 describe('getBlocklistSet', () => {
-  let blocklistSet;
+  let blocklistSet!: Set<string>;
   beforeAll(() => { blocklistSet = getBlocklistSet(); });
 
   test('returns a Set', () => {
