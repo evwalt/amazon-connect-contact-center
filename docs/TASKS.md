@@ -18,13 +18,13 @@
 - [x] Unit tests for Lambda handler and DynamoDB writes
 - [x] Clean up expected console output in error-path tests
 - [x] Create SAM template
+- [x] Install AWS SAM CLI
+- [x] Validate SAM template (`sam validate`)
+- [x] Build SAM application (`sam build`)
+- [x] Deploy Lambda and DynamoDB
 
 ## Next
 
-- [ ] Install AWS SAM CLI
-- [ ] Validate SAM template (`sam validate`)
-- [ ] Build SAM application (`sam build`)
-- [ ] Deploy Lambda and DynamoDB
 - [ ] Connect Lambda to Amazon Connect
 - [ ] Create and publish contact flow
 - [ ] End-to-end phone call test
