@@ -6,6 +6,7 @@
     "test": "jest tests/unit --coverage",
     "test:integration": "jest tests/integration",
     "build": "tsc --noEmit",
+    "build:sam": "PATH=\"$PWD/node_modules/.bin:$PATH\" sam build --template-file infrastructure/template.yaml",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
