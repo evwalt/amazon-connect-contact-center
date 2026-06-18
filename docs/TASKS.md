@@ -22,10 +22,10 @@
 - [x] Validate SAM template (`sam validate`)
 - [x] Build SAM application (`sam build`)
 - [x] Deploy Lambda and DynamoDB
+- [x] Connect Lambda to Amazon Connect
 
 ## Next
 
-- [ ] Connect Lambda to Amazon Connect
 - [ ] Create and publish contact flow
 - [ ] End-to-end phone call test
 
