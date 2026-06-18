@@ -16,11 +16,14 @@
 - [x] Amazon Connect Lambda handler
 - [x] DynamoDB persistence wrapper
 - [x] Unit tests for Lambda handler and DynamoDB writes
+- [x] Clean up expected console output in error-path tests
+- [x] Create SAM template
 
 ## Next
 
-- [ ] Clean up expected console output in error-path tests
-- [ ] Create SAM template
+- [ ] Install AWS SAM CLI
+- [ ] Validate SAM template (`sam validate`)
+- [ ] Build SAM application (`sam build`)
 - [ ] Deploy Lambda and DynamoDB
 - [ ] Connect Lambda to Amazon Connect
 - [ ] Create and publish contact flow
