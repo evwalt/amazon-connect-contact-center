@@ -32,7 +32,11 @@ function extractSubscriberDigits(phoneNumber: string | number): string {
  * Worst case (all 7s or 9s): 4^7 = 16,384. Typical: ~2,000–5,000.
  */
 function generateCandidates(subscriberDigits: string): string[] {
-  const letterOptions = subscriberDigits.split('').map((d) => KEYPAD[d] ?? [d]);
+  const letterOptions = subscriberDigits.split('').map((d) => {
+    const letters = KEYPAD[d];
+    if (!letters) throw new Error(`generateCandidates: unexpected character '${d}'`);
+    return letters;
+  });
 
   let candidates: string[] = [''];
   for (const options of letterOptions) {

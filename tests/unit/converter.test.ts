@@ -102,4 +102,8 @@ describe('generateCandidates', () => {
       expect(Array.isArray(KEYPAD[String(d)])).toBe(true);
     }
   });
+
+  test('throws when input contains a non-digit character', () => {
+    expect(() => generateCandidates('A000000')).toThrow("generateCandidates: unexpected character 'A'");
+  });
 });
