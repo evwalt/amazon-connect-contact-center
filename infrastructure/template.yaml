@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  Amazon Connect Vanity Number Generator — core backend.
+  Deploys the VanityConverter Lambda and the VanityCallLog DynamoDB table.
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Architectures:
+      - x86_64
+
+Resources:
+
+  VanityCallLogTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      # AttributeDefinitions lists only key attributes (PK, SK, GSI keys).
+      # Non-key attributes (callId, vanityNumbers, ttl) are not declared here.
+      AttributeDefinitions:
+        - AttributeName: callerNumber
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: S
+        - AttributeName: gsiPk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: callerNumber
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: TimestampIndex
+          KeySchema:
+            - AttributeName: gsiPk
+              KeyType: HASH
+            - AttributeName: timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  VanityConverterFunction:
+    Type: AWS::Serverless::Function
+    # After deploying: add the VanityConverterFunctionArn output to your Amazon
+    # Connect instance under Contact flows > AWS Lambda before setting up the
+    # contact flow. Without this step, Connect cannot invoke the Lambda.
+    Properties:
+      CodeUri: ../src/vanity-converter/
+      Handler: handler.handler
+      Timeout: 10
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VanityCallLogTable
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:PutItem
+              Resource: !GetAtt VanityCallLogTable.Arn
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+          - handler.ts
+        Minify: false
+        Sourcemap: true
+        Target: es2020
+
+Outputs:
+  VanityConverterFunctionArn:
+    Description: >-
+      Lambda ARN — add to Amazon Connect under Contact flows > AWS Lambda
+      before configuring the contact flow.
+    Value: !GetAtt VanityConverterFunction.Arn
+  VanityCallLogTableName:
+    Description: DynamoDB table name for call log records.
+    Value: !Ref VanityCallLogTable

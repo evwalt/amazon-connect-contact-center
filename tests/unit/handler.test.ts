@@ -17,8 +17,7 @@ function makeEvent(address: string | null, contactId = 'test-contact-id'): Conne
         Attributes: {},
         Channel: 'VOICE',
         ContactId: contactId,
-        CustomerEndpoint:
-          address !== null ? { Address: address, Type: 'TELEPHONE_NUMBER' } : null,
+        CustomerEndpoint: address !== null ? { Address: address, Type: 'TELEPHONE_NUMBER' } : null,
         InitialContactId: contactId,
         InitiationMethod: 'INBOUND',
         InstanceARN: 'arn:aws:connect:us-east-1:123456789012:instance/test',
