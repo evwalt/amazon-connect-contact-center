@@ -1,6 +1,19 @@
 import { rankCandidates, findSubstrings, longestAlphaRun } from '../../src/vanity-converter/scorer';
 
-const WORDS = new Set(['CALL', 'ALL', 'LOVE', 'LOW', 'FLOW', 'FLOWER', 'FLOWERS', 'OWE', 'LOWER', 'FLY', 'HOME', 'HELP']);
+const WORDS = new Set([
+  'CALL',
+  'ALL',
+  'LOVE',
+  'LOW',
+  'FLOW',
+  'FLOWER',
+  'FLOWERS',
+  'OWE',
+  'LOWER',
+  'FLY',
+  'HOME',
+  'HELP',
+]);
 const BLOCKLIST = new Set(['DAMN', 'HELL', 'SHIT']);
 
 describe('findSubstrings', () => {

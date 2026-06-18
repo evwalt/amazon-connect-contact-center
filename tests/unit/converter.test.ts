@@ -1,4 +1,8 @@
-import { extractSubscriberDigits, generateCandidates, KEYPAD } from '../../src/vanity-converter/converter';
+import {
+  extractSubscriberDigits,
+  generateCandidates,
+  KEYPAD,
+} from '../../src/vanity-converter/converter';
 
 describe('extractSubscriberDigits', () => {
   test('extracts last 7 digits from E.164 format', () => {
@@ -104,6 +108,8 @@ describe('generateCandidates', () => {
   });
 
   test('throws when input contains a non-digit character', () => {
-    expect(() => generateCandidates('A000000')).toThrow("generateCandidates: unexpected character 'A'");
+    expect(() => generateCandidates('A000000')).toThrow(
+      "generateCandidates: unexpected character 'A'",
+    );
   });
 });

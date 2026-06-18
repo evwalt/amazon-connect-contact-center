@@ -2,7 +2,9 @@ import { getWordSet, getBlocklistSet } from '../../src/vanity-converter/wordlist
 
 describe('getWordSet', () => {
   let wordSet!: Set<string>;
-  beforeAll(() => { wordSet = getWordSet(); });
+  beforeAll(() => {
+    wordSet = getWordSet();
+  });
 
   test('returns a Set', () => {
     expect(wordSet).toBeInstanceOf(Set);
@@ -46,7 +48,9 @@ describe('getWordSet', () => {
 
 describe('getBlocklistSet', () => {
   let blocklistSet!: Set<string>;
-  beforeAll(() => { blocklistSet = getBlocklistSet(); });
+  beforeAll(() => {
+    blocklistSet = getBlocklistSet();
+  });
 
   test('returns a Set', () => {
     expect(blocklistSet).toBeInstanceOf(Set);

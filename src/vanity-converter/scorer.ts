@@ -8,11 +8,7 @@ const MAX_WORD_LEN = 7;
 function findSubstrings(candidate: string, lookupSet: Set<string>): Set<string> {
   const found = new Set<string>();
   for (let start = 0; start < candidate.length; start++) {
-    for (
-      let len = MIN_WORD_LEN;
-      len <= Math.min(MAX_WORD_LEN, candidate.length - start);
-      len++
-    ) {
+    for (let len = MIN_WORD_LEN; len <= Math.min(MAX_WORD_LEN, candidate.length - start); len++) {
       const sub = candidate.slice(start, start + len);
       if (lookupSet.has(sub)) found.add(sub);
     }
@@ -73,8 +69,7 @@ function rankCandidates(
 
     const words = findSubstrings(candidate, wordSet);
     const wordCount = words.size;
-    const longestWord =
-      wordCount > 0 ? Math.max(...[...words].map((w) => w.length)) : 0;
+    const longestWord = wordCount > 0 ? Math.max(...[...words].map((w) => w.length)) : 0;
 
     scored.push({
       candidate,
