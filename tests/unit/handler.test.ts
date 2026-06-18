@@ -211,6 +211,18 @@ describe('handler', () => {
     // extractAreaCode('2065551234'): 10 digits, not US E.164 → slice(0, 3) = '206'
     expect(result.vanity1).toBe('206-JJJAAAB');
   });
+
+  test('regression: +17575701813 returns best-effort results for all-digit-bearing subscriber', async () => {
+    // Subscriber digits 5701813 → [JKL][PQRS]01[TUV]1[DEF].
+    // The embedded 0 and two 1s are unavoidable; no dictionary words are possible.
+    // Verifies the handler returns success with correct area code and digit pattern.
+    const result = await handler(makeEvent('+17575701813'));
+    expect(result.status).toBe('success');
+    const pattern = /^757-[JKL][PQRS]01[TUV]1[DEF]$/;
+    expect(result.vanity1).toMatch(pattern);
+    expect(result.vanity2).toMatch(pattern);
+    expect(result.vanity3).toMatch(pattern);
+  });
 });
 
 describe('writeCallRecord', () => {

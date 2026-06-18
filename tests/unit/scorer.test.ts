@@ -84,9 +84,9 @@ describe('rankCandidates', () => {
     expect(result).toHaveLength(3);
   });
 
-  test('candidate with more words ranks above candidate with fewer', () => {
-    // FLOWERS contains FLOW, FLOWER, FLOWERS, LOW, LOWER, OWE = 6 words → primary = 67
-    // CALLXYZ contains CALL, ALL = 2 words → primary = 24
+  test('candidate with a longer word ranks above candidate with only shorter words', () => {
+    // FLOWERS: longestWord=7, wordCount=6 → wordScore=76, primary=10076
+    // CALLXYZ: longestWord=4, wordCount=2 → wordScore=42, primary=10042
     const result = rankCandidates(['CALLXYZ', 'FLOWERS'], WORDS, new Set<string>());
     expect(result[0]).toBe('FLOWERS');
   });
@@ -97,12 +97,33 @@ describe('rankCandidates', () => {
     expect(result[0]).toBe('ZZZZZZZ');
   });
 
-  test('candidates with equal primary score are sorted by longest alpha run', () => {
-    // Both have no dictionary words (primary = 0), so secondary (alpha run) decides
-    // 'AAAZ0AA' has runs: 3, 2 → longest = 3
-    // 'AAAAZAA' has runs: 4, 2 → longest = 4
+  test('digit-free candidate ranks above digit-bearing candidate when neither has words', () => {
+    // 'AAAAZAA': no words, no 0/1 digits → primary = 0
+    // 'AAAZ0AA': no words, one 0 → primary = -10
     const result = rankCandidates(['AAAZ0AA', 'AAAAZAA'], WORDS, new Set<string>());
     expect(result[0]).toBe('AAAAZAA');
+  });
+
+  test('candidates with equal primary score are sorted by longest alpha run', () => {
+    // Both have no words and exactly one 0 (primary = -10), so secondary (alpha run) decides.
+    // 'AB0CDEF': alpha runs AB(2), CDEF(4) → longest = 4
+    // 'ABCDE0F': alpha runs ABCDE(5), F(1) → longest = 5
+    const result = rankCandidates(['AB0CDEF', 'ABCDE0F'], WORDS, new Set<string>());
+    expect(result[0]).toBe('ABCDE0F');
+  });
+
+  test('word-matched candidate ranks above no-word candidate even when it contains a digit', () => {
+    // 'CALL0XY': has CALL → primary = 10000 + 40+1 - 10 = 10031
+    // 'ZZZZZZZ': no words, no digits → primary = 0
+    const result = rankCandidates(['ZZZZZZZ', 'CALL0XY'], WORDS, new Set<string>());
+    expect(result[0]).toBe('CALL0XY');
+  });
+
+  test('candidate with fewer 0/1 digits ranks above one with more (both no words)', () => {
+    // 'ZZZZZZ0': one 0 → primary = -10
+    // 'ZZZ01ZZ': one 0 + one 1 → primary = -20
+    const result = rankCandidates(['ZZZ01ZZ', 'ZZZZZZ0'], WORDS, new Set<string>());
+    expect(result[0]).toBe('ZZZZZZ0');
   });
 
   test('blocklisted candidate is excluded from results', () => {
@@ -129,9 +150,9 @@ describe('rankCandidates', () => {
     expect(typeof result[0]).toBe('string');
   });
 
-  test('FLOWERS scores correctly: 6 words found, longest is 7 chars', () => {
-    // primary = 6 * 10 + 7 = 67
-    // Verify FLOWERS beats a candidate with 1 word of length 4 (primary = 14)
+  test('FLOWERS scores correctly: longest word 7 chars, 6 total words, no digits', () => {
+    // FLOWERS: wordScore = 7*10+6 = 76 → primary = 10076
+    // CALLXYZ: wordScore = 4*10+2 = 42 → primary = 10042
     const result = rankCandidates(['CALLXYZ', 'FLOWERS'], WORDS, new Set<string>(), 2);
     expect(result[0]).toBe('FLOWERS');
     expect(result[1]).toBe('CALLXYZ');
