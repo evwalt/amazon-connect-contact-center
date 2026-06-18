@@ -23,17 +23,18 @@
 - [x] Build SAM application (`sam build`)
 - [x] Deploy Lambda and DynamoDB
 - [x] Connect Lambda to Amazon Connect
+- [x] Create and publish contact flow
+- [x] End-to-end phone call test
 
 ## Next
 
-- [ ] Create and publish contact flow
-- [ ] End-to-end phone call test
-
-## Later
-
+- [ ] Improve vanity number quality
 - [ ] RecentCallers Lambda
 - [ ] API Gateway `/callers`
 - [ ] Static web app
+
+## Later
+
 - [ ] Architecture diagram
 - [ ] Deployment instructions polish
 - [ ] Send repo to Matt for pre-review
