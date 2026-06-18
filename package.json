@@ -8,6 +8,8 @@
     "build": "tsc --noEmit",
     "build:sam": "PATH=\"$PWD/node_modules/.bin:$PATH\" sam build --template-file infrastructure/template.yaml",
     "demo:vanity": "node -e \"require('esbuild').buildSync({entryPoints:['scripts/demo-vanity.ts'],bundle:true,platform:'node',outfile:'dist/demo-vanity.js'})\" && node dist/demo-vanity.js",
+    "dev:web": "npm install --prefix web && npm run --prefix web dev",
+    "build:web": "npm install --prefix web && npm run --prefix web build",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
