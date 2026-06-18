@@ -1,8 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >-
-  Amazon Connect Vanity Number Generator — core backend.
-  Deploys the VanityConverter Lambda and the VanityCallLog DynamoDB table.
+  Amazon Connect Vanity Number Generator — backend and web API.
+  Deploys the VanityConverter Lambda, RecentCallers Lambda,
+  an HTTP API Gateway, and the VanityCallLog DynamoDB table.
 
 Globals:
   Function:
@@ -43,6 +44,48 @@ Resources:
         AttributeName: ttl
         Enabled: true
 
+  RecentCallersApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+        AllowHeaders:
+          - Content-Type
+
+  RecentCallersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../src/recent-callers/
+      Handler: handler.handler
+      Timeout: 10
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref VanityCallLogTable
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: dynamodb:Query
+              Resource: !Sub '${VanityCallLogTable.Arn}/index/TimestampIndex'
+      Events:
+        GetCallers:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref RecentCallersApi
+            Path: /callers
+            Method: GET
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+          - handler.ts
+        Minify: false
+        Sourcemap: true
+        Target: es2020
+
   VanityConverterFunction:
     Type: AWS::Serverless::Function
     # After deploying: add the VanityConverterFunctionArn output to your Amazon
@@ -79,3 +122,8 @@ Outputs:
   VanityCallLogTableName:
     Description: DynamoDB table name for call log records.
     Value: !Ref VanityCallLogTable
+  RecentCallersApiUrl:
+    Description: >-
+      GET /callers endpoint — returns the 5 most recent call records.
+      Set VITE_API_URL to this value before running the web app.
+    Value: !Sub 'https://${RecentCallersApi}.execute-api.${AWS::Region}.amazonaws.com'
