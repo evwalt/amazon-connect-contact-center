@@ -86,9 +86,10 @@ Responsibilities:
 |---|---|---|
 | `callerNumber` | String | Partition key |
 | `timestamp` | String (ISO 8601) | Sort key |
-| `vanityNumbers` | List\<String\> | Top 5 scored results |
+| `vanityNumbers` | List\<String\> | Top 5 scored results (formatted as `{areaCode}-{candidate}`) |
 | `callId` | String | Connect ContactId |
 | `gsiPk` | String | Fixed value `"CALL"` (GSI partition key) |
+| `ttl` | Number (Unix epoch) | Expiry timestamp — 90 days after the call; used by DynamoDB TTL |
 
 #### GSI: TimestampIndex
 
