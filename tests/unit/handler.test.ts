@@ -7,6 +7,7 @@ import * as converterModule from '../../src/vanity-converter/converter';
 import * as scorerModule from '../../src/vanity-converter/scorer';
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
+let consoleSpy!: { warn: jest.SpyInstance; error: jest.SpyInstance };
 
 function makeEvent(address: string | null, contactId = 'test-contact-id'): ConnectContactFlowEvent {
   return {
@@ -35,6 +36,10 @@ beforeEach(() => {
   ddbMock.reset();
   ddbMock.on(PutCommand).resolves({});
   process.env.TABLE_NAME = 'TestTable';
+  consoleSpy = {
+    warn: jest.spyOn(console, 'warn').mockImplementation(() => {}),
+    error: jest.spyOn(console, 'error').mockImplementation(() => {}),
+  };
 });
 
 afterEach(() => {
@@ -123,11 +128,19 @@ describe('handler', () => {
     expect(result.vanity1).toBe('');
     expect(result.vanity2).toBe('');
     expect(result.vanity3).toBe('');
+    expect(consoleSpy.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ callId: 'test-contact-id' }),
+      expect.stringContaining('No caller number'),
+    );
   });
 
   test('does not write to DynamoDB when CustomerEndpoint is null', async () => {
     await handler(makeEvent(null));
     expect(ddbMock.commandCalls(PutCommand)).toHaveLength(0);
+    expect(consoleSpy.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ callId: 'test-contact-id' }),
+      expect.stringContaining('No caller number'),
+    );
   });
 
   test('returns error response when DynamoDB write fails', async () => {
@@ -135,6 +148,10 @@ describe('handler', () => {
     const result = await handler(makeEvent('+12065551234'));
     expect(result.status).toBe('error');
     expect(result.vanity1).toBe('');
+    expect(consoleSpy.error).toHaveBeenCalledWith(
+      expect.objectContaining({ callId: 'test-contact-id', callerNumber: '+12065551234' }),
+      expect.stringContaining('DynamoDB write failed'),
+    );
   });
 
   test('returns error response when vanity generation fails', async () => {
@@ -143,6 +160,10 @@ describe('handler', () => {
     });
     const result = await handler(makeEvent('+12065551234'));
     expect(result.status).toBe('error');
+    expect(consoleSpy.error).toHaveBeenCalledWith(
+      expect.objectContaining({ callId: 'test-contact-id', callerNumber: '+12065551234' }),
+      expect.stringContaining('Vanity generation failed'),
+    );
   });
 
   test('does not write to DynamoDB when vanity generation fails', async () => {
@@ -151,6 +172,10 @@ describe('handler', () => {
     });
     await handler(makeEvent('+12065551234'));
     expect(ddbMock.commandCalls(PutCommand)).toHaveLength(0);
+    expect(consoleSpy.error).toHaveBeenCalledWith(
+      expect.objectContaining({ callId: 'test-contact-id', callerNumber: '+12065551234' }),
+      expect.stringContaining('Vanity generation failed'),
+    );
   });
 
   test('returns empty strings for missing vanity slots when fewer than 3 results', async () => {
