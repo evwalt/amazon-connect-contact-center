@@ -34,6 +34,11 @@ describe('extractSubscriberDigits', () => {
   test('handles numeric input (not a string)', () => {
     expect(extractSubscriberDigits(2065551234)).toBe('5551234');
   });
+
+  test('extracts subscriber digits for the all-digit-bearing regression number', () => {
+    // +17575701813: last 7 digits of 17575701813 = 5701813
+    expect(extractSubscriberDigits('+17575701813')).toBe('5701813');
+  });
 });
 
 describe('generateCandidates', () => {
@@ -78,6 +83,18 @@ describe('generateCandidates', () => {
   test('3569377 includes FLOWERS as a candidate', () => {
     const result = generateCandidates('3569377');
     expect(result).toContain('FLOWERS');
+  });
+
+  test('9352663 includes WELCOME as a candidate', () => {
+    // W(9)E(3)L(5)C(2)O(6)M(6)E(3) = 9352663
+    const result = generateCandidates('9352663');
+    expect(result).toContain('WELCOME');
+  });
+
+  test('5701813 produces exactly 108 candidates', () => {
+    // 5→JKL(3) × 7→PQRS(4) × 0→0(1) × 1→1(1) × 8→TUV(3) × 1→1(1) × 3→DEF(3) = 108
+    // Documents the digit-bearing constraint: every candidate contains literal 0 and 1s.
+    expect(generateCandidates('5701813')).toHaveLength(108);
   });
 
   test('0 and 1 positions remain as literal digits in all candidates', () => {
