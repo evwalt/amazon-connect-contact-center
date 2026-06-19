@@ -15,6 +15,21 @@ interface CallerRecord {
 
 const API_URL: string = import.meta.env.VITE_API_URL ?? '';
 
+// Converts a UTC ISO timestamp to the browser's local timezone with abbreviation.
+// Jun 19, 2026, 9:22 AM PDT. Returns the raw string if parsing fails.
+function formatTimestamp(raw: string): string {
+  const date = new Date(raw);
+  if (isNaN(date.getTime())) return raw;
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  });
+}
+
 // Formats E.164 numbers for display. +17575701813 → +1 (757) 570-1813.
 // Returns the raw value unchanged for anything that doesn't match.
 function formatPhone(raw: string): string {
@@ -76,7 +91,7 @@ export default function App() {
                 {
                   id: 'timestamp',
                   header: 'Time',
-                  cell: (item) => new Date(item.timestamp).toLocaleString(),
+                  cell: (item) => formatTimestamp(item.timestamp),
                   width: 200,
                 },
                 {
