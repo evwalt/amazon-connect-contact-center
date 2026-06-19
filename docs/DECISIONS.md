@@ -2,6 +2,18 @@
 
 This document records the key decisions made during architecture and implementation, the alternatives considered, and the rationale for each choice. The goal is to make the thinking transparent — not just what was built, but why.
 
+- [1. Defining "Best" Vanity Numbers](#1-defining-best-vanity-numbers)
+- [2. Call Log vs. Upsert Design](#2-call-log-vs-upsert-design)
+- [3. DynamoDB Table Design](#3-dynamodb-table-design)
+- [4. Language and Runtime](#4-language-and-runtime)
+- [5. IaC Tool: AWS SAM](#5-iac-tool-aws-sam)
+- [6. Web App: Cloudscape React + Vite](#6-web-app-cloudscape-react--vite)
+- [7. API Design: HTTP API vs. REST API](#7-api-design-http-api-vs-rest-api)
+- [8. Vanity Number Scope: 7-Digit Subscriber Number Only](#8-vanity-number-scope-7-digit-subscriber-number-only)
+- [9. Word List](#9-word-list)
+- [10. Connect Lambda Timeout](#10-connect-lambda-timeout)
+- [11. Store 5, Speak 3](#11-store-5-speak-3)
+
 ---
 
 ## 1. Defining "Best" Vanity Numbers
