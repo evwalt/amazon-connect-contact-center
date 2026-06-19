@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AppLayout from '@cloudscape-design/components/app-layout';
 import Box from '@cloudscape-design/components/box';
 import ContentLayout from '@cloudscape-design/components/content-layout';
 import Header from '@cloudscape-design/components/header';
@@ -36,41 +37,47 @@ export default function App() {
   }, []);
 
   return (
-    <ContentLayout header={<Header variant="h1">Recent Callers</Header>}>
-      {error ? (
-        <Box color="text-status-error">{error}</Box>
-      ) : (
-        <Table
-          loading={loading}
-          loadingText="Loading recent callers…"
-          empty={
-            <Box textAlign="center" color="inherit">
-              <b>No calls recorded yet</b>
-            </Box>
-          }
-          columnDefinitions={[
-            {
-              id: 'callerNumber',
-              header: 'Caller Number',
-              cell: (item) => item.callerNumber,
-              width: 180,
-            },
-            {
-              id: 'timestamp',
-              header: 'Time',
-              cell: (item) => new Date(item.timestamp).toLocaleString(),
-              width: 200,
-            },
-            {
-              id: 'vanityNumbers',
-              header: 'Vanity Numbers',
-              cell: (item) => item.vanityNumbers.slice(0, 3).join('  ·  '),
-            },
-          ]}
-          items={callers}
-          variant="full-page"
-        />
-      )}
-    </ContentLayout>
+    <AppLayout
+      navigationHide
+      toolsHide
+      content={
+        <ContentLayout header={<Header variant="h1">Recent Callers</Header>}>
+          {error ? (
+            <Box color="text-status-error">{error}</Box>
+          ) : (
+            <Table
+              loading={loading}
+              loadingText="Loading recent callers…"
+              empty={
+                <Box textAlign="center" color="inherit">
+                  <b>No calls recorded yet</b>
+                </Box>
+              }
+              columnDefinitions={[
+                {
+                  id: 'callerNumber',
+                  header: 'Caller Number',
+                  cell: (item) => item.callerNumber,
+                  width: 180,
+                },
+                {
+                  id: 'timestamp',
+                  header: 'Time',
+                  cell: (item) => new Date(item.timestamp).toLocaleString(),
+                  width: 200,
+                },
+                {
+                  id: 'vanityNumbers',
+                  header: 'Vanity Numbers',
+                  cell: (item) => item.vanityNumbers.slice(0, 3).join('  ·  '),
+                },
+              ]}
+              items={callers}
+              variant="full-page"
+            />
+          )}
+        </ContentLayout>
+      }
+    />
   );
 }
