@@ -2,21 +2,25 @@
 
 A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact flow that converts caller phone numbers to vanity numbers and presents the best options via text-to-speech, backed by a DynamoDB call log and a web app showing recent callers.
 
-## Try It
+## Quick Review
 
-Call **+1 (888) 213-1948** from any phone. The contact flow will speak 3 vanity number options derived from your caller ID.
+| | |
+|---|---|
+| **Phone number** | +1 (888) 213-1948 |
+| **Live dashboard** | http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com |
 
-Live dashboard (updates after each call): http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com
+Call the number from any phone to hear 3 vanity options. Your call appears in the dashboard within seconds.
 
-- [Try It](#try-it)
+## Contents
+
 - [What It Does](#what-it-does)
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
+- [Project Structure](#project-structure)
 - [Local Development](#local-development)
 - [Deployment](#deployment)
 - [Testing the Solution](#testing-the-solution)
 - [Screenshots](#screenshots)
-- [Bonus: Live Phone Number](#bonus-live-phone-number)
 - [Documentation](#documentation)
 
 ## What It Does
@@ -148,12 +152,6 @@ npm run dev:web
 **Recent Callers web dashboard:**
 
 ![Recent Callers dashboard](docs/screenshots/web.jpg)
-
-## Bonus: Live Phone Number
-
-> **+1 (888) 213-1948**
-
-Live dashboard: http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com
 
 ## Documentation
 
