@@ -111,15 +111,19 @@ After deploying:
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for step-by-step Connect setup instructions.
 
-### 4. Deploy the web app
+### 4. Run the web app locally
 
-The SAM template creates an S3 bucket for the web app. After `sam deploy`:
+After `sam deploy`, copy the `RecentCallersApiUrl` output value, then:
 
 ```bash
-aws s3 sync web/ s3://<WebAppBucketName>/ --delete
+# web/.env.local — git-ignored
+echo "VITE_API_URL=https://<api-id>.execute-api.us-west-2.amazonaws.com" > web/.env.local
+
+npm run dev:web
+# Opens http://localhost:5173
 ```
 
-The bucket URL is output by the SAM stack as `WebAppUrl`.
+The app shows a Cloudscape table with the caller number, timestamp, and vanity numbers for the last 5 callers.
 
 ## Testing the Solution
 
