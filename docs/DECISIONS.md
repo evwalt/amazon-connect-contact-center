@@ -13,6 +13,7 @@ This document records the key decisions made during architecture and implementat
 - [9. Word List](#9-word-list)
 - [10. Connect Lambda Timeout](#10-connect-lambda-timeout)
 - [11. Store 5, Speak 3](#11-store-5-speak-3)
+- [12. Dashboard Hosting: S3 HTTP vs. CloudFront + HTTPS](#12-dashboard-hosting-s3-http-vs-cloudfront--https)
 
 ---
 
@@ -140,7 +141,7 @@ SAM is purpose-built for Lambda + API Gateway workloads. It requires less boiler
 
 ### What SAM Cannot Do Cleanly
 
-SAM does not natively manage CloudFront distributions. For this assignment the web app runs locally via Vite (`npm run dev:web`) — no S3 bucket or CloudFront distribution is deployed. In production the right approach is S3 + CloudFront for HTTPS, caching, and a custom domain — documented as a "more time" item.
+SAM does not natively manage CloudFront distributions. The S3 bucket hosting the dashboard is provisioned outside the SAM stack via CLI (see §12). In production, SAM would be replaced with CDK to manage S3 + CloudFront together cleanly.
 
 ### Alternative Considered
 
@@ -152,19 +153,19 @@ SAM does not natively manage CloudFront distributions. For this assignment the w
 
 ### Decision
 
-React with [Cloudscape Design System](https://cloudscape.design/) components, bundled by Vite. Runs locally via `npm run dev:web`; no S3 or CloudFront hosting for this assignment.
+React with [Cloudscape Design System](https://cloudscape.design/) components, bundled by Vite. Built via `npm run build:web`; deployed to an S3 static website bucket via `npm run deploy:web` (see §12 for the HTTP vs. HTTPS hosting decision).
 
 ### Why Cloudscape
 
 Cloudscape is the open-source design system used across AWS console products. For an Amazon Connect assignment, using Cloudscape signals familiarity with AWS-aligned UI conventions and produces a professional result without custom CSS. The `AppLayout` + `Table` pattern matches exactly how the Connect console itself presents tabular data.
 
-### Why Local-Only (No S3 Hosting)
+### Why Vite
 
-SAM does not manage CloudFront distributions natively, and adding S3 static website hosting to the SAM template introduces significant additional configuration (bucket policy, CORS, OAI or OAC, output URL) that is not the focus of this assignment. The feature requirement is "display the last 5 callers" — a Vite dev server satisfies that for demo purposes. Documented as a "more time" item.
+Vite provides fast local development (`npm run dev:web`) and a straightforward production build. The output is a self-contained static bundle that can be hosted on any static file server — S3, CloudFront, or a local dev server — without changes to the application code.
 
 ### Tradeoff
 
-The web app cannot be accessed without running `npm run dev:web` locally. In production: S3 + CloudFront via CDK (SAM's CloudFront support is limited), with HTTPS and a custom domain.
+The dashboard is served over HTTP (S3 website endpoint). In production: S3 + CloudFront via CDK for HTTPS, caching, and a custom domain.
 
 ---
 
@@ -244,3 +245,25 @@ The Lambda computes and stores the top 5 vanity numbers in DynamoDB. The contact
 ### Why
 
 Storing more than is immediately surfaced is a standard pattern: the presentation layer decides how much to show, and the stored data can serve future use cases (web app, analytics) without re-processing. Speaking all 5 would make the IVR experience too long. Three is a common UX pattern for choice presentation in voice interfaces.
+
+---
+
+## 12. Dashboard Hosting: S3 HTTP vs. CloudFront + HTTPS
+
+### Decision
+
+Host the dashboard on an S3 static website endpoint (HTTP only). The bucket is provisioned outside the SAM stack via CLI and deployed with `npm run deploy:web`.
+
+### Why Not CloudFront
+
+Adding CloudFront would require a distribution, an ACM certificate (with DNS validation), an origin access control policy, and either a CDK rewrite or manual console configuration — none of which is the focus of this assignment. The incremental complexity is significant relative to the benefit.
+
+The dashboard contains no authentication, no PII, and performs no sensitive operations. The only data it exposes is vanity number mappings — the same data spoken aloud by the IVR. HTTP is an acceptable risk for a demo deployment.
+
+### Why Not SAM-Managed S3
+
+SAM does not natively manage CloudFront distributions. Adding S3 website hosting to the SAM template without CloudFront would require a bucket, bucket policy, and website configuration resource — and would still produce an HTTP endpoint. Keeping the bucket outside the SAM stack avoids complicating the primary deployment path for a feature that is explicitly bonus scope.
+
+### Production Path
+
+S3 + CloudFront + ACM via CDK, with HTTPS enforced and a custom domain. CloudFront also provides edge caching, WAF integration, and a clean URL — none of which is needed for a reviewer demo.
