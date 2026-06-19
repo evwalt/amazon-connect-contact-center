@@ -128,7 +128,7 @@ SAM is purpose-built for Lambda + API Gateway workloads. It requires less boiler
 
 ### What SAM Cannot Do Cleanly
 
-SAM does not natively manage CloudFront distributions. The web app is hosted directly on an S3 static website endpoint (HTTP only, not HTTPS) for simplicity. In production, CloudFront would sit in front of S3 for HTTPS, caching, and a custom domain — documented as a "more time" item.
+SAM does not natively manage CloudFront distributions. For this assignment the web app runs locally via Vite (`npm run dev:web`) — no S3 bucket or CloudFront distribution is deployed. In production the right approach is S3 + CloudFront for HTTPS, caching, and a custom domain — documented as a "more time" item.
 
 ### Alternative Considered
 
@@ -168,7 +168,7 @@ HTTP API is lower cost (~$1/million requests vs. ~$3.50 for REST API), has lower
 
 ### CORS
 
-CORS is explicitly configured on the HTTP API to allow requests from the S3 static website origin. This is a common gotcha when the web app and API are on different origins — it is handled in the SAM template, not discovered at demo time.
+CORS is explicitly configured on the HTTP API (`AllowOrigins: *`) to allow the locally-served Vite app to call the API from a different origin. This is a common gotcha when the web app and API are on different origins — it is handled in the SAM template, not discovered at demo time.
 
 ---
 

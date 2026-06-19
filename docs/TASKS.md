@@ -27,7 +27,7 @@
 - [x] End-to-end phone call test
 - [x] RecentCallers Lambda
 - [x] API Gateway `/callers`
-- [x] Static web app
+- [x] Recent callers web dashboard (local Vite)
 
 ## Next
 
