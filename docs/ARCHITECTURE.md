@@ -125,11 +125,11 @@ Note: Using a fixed GSI partition key is a known anti-pattern at high call volum
 
 HTTP API (not REST API) — lower cost, simpler configuration, no usage plans needed at this scale. Single route: `GET /callers`.
 
-CORS is enabled (`AllowOrigins: *`) so the locally-served web app can call the API from a different origin.
+CORS is enabled (`AllowOrigins: *`) so the web app can call the API from a different origin (whether served from S3 or a local dev server).
 
 ### Web App
 
-React + Vite + [Cloudscape Design System](https://cloudscape.design/). Runs locally via `npm run dev:web` (Vite dev server at `http://localhost:5173`). Fetches `GET /callers` on load and displays the last 5 callers in a Cloudscape `Table`. The API URL is injected at build time via the `VITE_API_URL` environment variable (see `web/.env.example`).
+React + Vite + [Cloudscape Design System](https://cloudscape.design/). Deployed to an S3 static website endpoint for this assignment (`npm run deploy:web`); also runnable locally via `npm run dev:web`. Fetches `GET /callers` on load and displays the last 5 callers in a Cloudscape `Table`. The API URL is injected at build time via the `VITE_API_URL` environment variable (see `web/.env.example`).
 
 ## Data Flow: Inbound Call
 
@@ -143,7 +143,7 @@ React + Vite + [Cloudscape Design System](https://cloudscape.design/). Runs loca
 
 ## Data Flow: Web App
 
-1. Browser loads the Vite dev server (`http://localhost:5173`).
+1. Browser loads the dashboard (S3 endpoint or local dev server).
 2. React app sends `GET /callers` to the deployed API Gateway endpoint.
 3. API Gateway invokes RecentCallers Lambda.
 4. Lambda queries DynamoDB GSI for 5 most recent records.

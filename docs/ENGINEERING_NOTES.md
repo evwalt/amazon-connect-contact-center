@@ -30,8 +30,8 @@ The key decisions I had to lock before implementation:
 **1. Fixed GSI partition key**
 The `TimestampIndex` GSI uses a fixed partition key (`gsiPk = "CALL"`) to enable sorted queries across all callers. This creates a hot partition at scale. Acceptable for a demo; a production system would use time-bucketed partition keys or a separate time-series design.
 
-**2. Local-only web app (no S3/CloudFront)**
-The web app runs via `npm run dev:web` (Vite dev server) and is not deployed to S3 or CloudFront. In production, the right approach is S3 + CloudFront (HTTPS, caching, custom domain, WAF). Omitted because SAM does not manage CloudFront cleanly and the added setup complexity is not the focus of this assignment.
+**2. Web app hosted on S3 (HTTP only, no CloudFront)**
+The dashboard is deployed to an S3 static website endpoint (`npm run deploy:web`) for reviewer accessibility. The S3 bucket is provisioned outside the SAM stack to avoid complicating the primary Lambda/API deployment. The endpoint is HTTP only — no CloudFront distribution or ACM certificate. In production the right approach is S3 + CloudFront (HTTPS, caching, custom domain, WAF); see DECISIONS.md §12 for the full rationale.
 
 **3. No authentication on the web app API**
 The `GET /callers` endpoint is publicly accessible. In production, this would be behind Cognito, an API key, or at minimum IP-restricted. The data is not sensitive (vanity number mappings), but exposing any internal data without auth is a bad practice.
