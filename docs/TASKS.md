@@ -25,13 +25,13 @@
 - [x] Connect Lambda to Amazon Connect
 - [x] Create and publish contact flow
 - [x] End-to-end phone call test
+- [x] RecentCallers Lambda
+- [x] API Gateway `/callers`
+- [x] Static web app
 
 ## Next
 
 - [ ] Improve vanity number quality
-- [ ] RecentCallers Lambda
-- [ ] API Gateway `/callers`
-- [ ] Static web app
 
 ## Later
 
