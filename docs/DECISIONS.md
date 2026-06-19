@@ -192,7 +192,7 @@ If the area code is `800`, `888`, `877`, `866`, `855`, `844`, or `833` (toll-fre
 
 ### Decision
 
-Embed a static JSON file of approximately 5,000 common English words in the Lambda package, filtered to words of length 3–7 (matching the usable subscriber digit count). A separate small blocklist JSON excludes offensive words.
+Embed a static JSON file of 1,553 common English words in the Lambda package, filtered to words of length 3–7 (matching the usable subscriber digit count). A separate blocklist JSON of 43 entries excludes offensive words.
 
 ### Why Static File
 
@@ -207,7 +207,7 @@ The word list is derived from public domain frequency word lists (e.g., SCOWL at
 
 ### Tradeoff
 
-A smaller word list may miss valid vanity candidates that a larger dictionary would find. A larger dictionary (e.g., full Scrabble word list at ~279k words) would find more matches but would include obscure words that are not "vanity-friendly." The 5,000-word list strikes a balance.
+A smaller word list may miss valid vanity candidates that a larger dictionary would find. A larger dictionary (e.g., full Scrabble word list at ~279k words) would find more matches but would include obscure words that are not "vanity-friendly." The 1,553-word list targets common, recognizable words and strikes a practical balance.
 
 ---
 

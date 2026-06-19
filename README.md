@@ -7,7 +7,7 @@ A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact 
 1. A caller dials an Amazon Connect phone number.
 2. A Lambda function converts the caller's number to vanity candidates, scores them, stores the top 5 in DynamoDB, and returns the top 3 to the contact flow.
 3. The contact flow speaks the top 3 vanity options to the caller.
-4. A static web app queries an API to show the vanity numbers from the last 5 callers.
+4. A Cloudscape React dashboard queries an API to show the vanity numbers from the last 5 callers.
 
 ## Architecture
 
@@ -61,8 +61,6 @@ npm run build:sam
 ```
 
 ## Deployment
-
-Deployment instructions are the intended path and may be updated as implementation progresses.
 
 ### 1. Build Lambda bundles
 

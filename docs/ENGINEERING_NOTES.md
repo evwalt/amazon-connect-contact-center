@@ -68,7 +68,7 @@ The scoring formula is simple and works, but it doesn't account for word frequen
 The current implementation only converts the 7-digit subscriber number. A natural extension is to also generate vanity candidates for the full 10-digit number (area code + subscriber), or specifically for toll-free area codes (800, 888, etc.) where the area code is already part of the brand identity.
 
 **Contact flow as code**
-The contact flow is exported as JSON and imported manually. The Amazon Connect APIs support creating and updating contact flows programmatically. With more time, I'd add a SAM custom resource or a deploy script that creates/updates the contact flow via API, eliminating the manual import step.
+The contact flow is built manually in the Amazon Connect console (see ARCHITECTURE.md for the exact structure). The Amazon Connect APIs support creating and updating contact flows programmatically. With more time, I'd add a SAM custom resource or a deploy script that creates/updates the contact flow via API, eliminating the manual build step.
 
 **Call history per caller**
 The current web app shows the 5 most recent call events globally. A useful extension would be a per-caller history view — click on a number to see all past calls and their vanity results. This is supported by the call log schema (query by PK = callerNumber) without schema changes.

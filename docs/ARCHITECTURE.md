@@ -55,7 +55,7 @@ DynamoDB: VanityCallLog
 
 **Runtime:** Node.js 20.x  
 **Trigger:** Amazon Connect (synchronous invocation from contact flow)  
-**Timeout:** 8 seconds (set in SAM template; configured to 8s in the Connect contact flow block)
+**Timeout:** 10 seconds (set in SAM template). The Connect contact flow's "Invoke AWS Lambda function" block is separately configured to 8 seconds — the Lambda timeout is intentionally higher so Connect's timeout fires first and the error branch handles it gracefully.
 
 Responsibilities:
 
