@@ -31,14 +31,14 @@
 - [x] Deploy web dashboard to S3
 - [x] Architecture diagram
 - [x] Deployment instructions polish
-- [x] Send repo to Matt for pre-review *(when done)*
+- [x] Send repo to Matt for pre-review
 
 ## Next
-
-- [ ] Send repo to Matt for pre-review
-
-## Later
 
 - [ ] Improve vanity number quality
 - [ ] CloudFront + HTTPS for dashboard
 - [ ] Deploy contact flow as code
+
+## Later
+
+- [ ] Prepare for panel interview against assignment requirements, feedback from Matt, and any existing or additional tips from Matt
