@@ -4,10 +4,8 @@ A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact 
 
 ## Quick Review
 
-| | |
-|---|---|
-| **Phone number** | +1 (888) 213-1948 |
-| **Live dashboard** | http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com |
+**Phone number:** +1 (888) 213-1948  
+**Live dashboard:** http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com
 
 Call the number from any phone to hear 3 vanity options. Your call appears in the dashboard within seconds.
 
