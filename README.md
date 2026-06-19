@@ -1,6 +1,6 @@
 # Amazon Connect Vanity Number Generator
 
-A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact flow that converts caller phone numbers to vanity numbers and presents the best options via text-to-speech, backed by a DynamoDB call log and a web app showing recent callers.
+A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact flow that converts caller phone numbers to vanity numbers, stores and ranks results in DynamoDB, announces the top matches through text-to-speech, and exposes recent call activity through a Cloudscape React dashboard.
 
 ## Quick Review
 
@@ -11,9 +11,21 @@ A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact 
 
 Call the number from any phone to hear 3 vanity options. Your call appears in the dashboard within seconds.
 
-## Contents
+## Assignment Coverage
 
-- [What It Does](#what-it-does)
+| | Requirement | Where |
+|---|---|---|
+| ✅ | Vanity number Lambda — converts caller number, scores candidates, stores top 5 in DynamoDB, returns top 3 | `src/vanity-converter/` |
+| ✅ | Amazon Connect contact flow — speaks top 3 results via TTS | [Contact flow design](docs/ARCHITECTURE.md#contact-flow-design) |
+| ✅ *bonus* | SAM deployment package + setup instructions | `infrastructure/template.yaml` |
+| ✅ *super bonus* | Cloudscape React dashboard — last 5 callers, publicly hosted | [Live dashboard](http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com) · `web/` |
+| ✅ | Design decisions and rationale (12 documented) | [docs/DECISIONS.md](docs/DECISIONS.md) |
+| ✅ | Struggles, shortcuts, and more-time items | [docs/ENGINEERING_NOTES.md](docs/ENGINEERING_NOTES.md) |
+| ✅ *bonus* | Architecture diagram | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [Screenshots](#screenshots) |
+
+## Table of Contents
+
+- [Assignment Coverage](#assignment-coverage)
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [Project Structure](#project-structure)
@@ -22,13 +34,6 @@ Call the number from any phone to hear 3 vanity options. Your call appears in th
 - [Testing the Solution](#testing-the-solution)
 - [Screenshots](#screenshots)
 - [Documentation](#documentation)
-
-## What It Does
-
-1. A caller dials an Amazon Connect phone number.
-2. A Lambda function converts the caller's number to vanity candidates, scores them, stores the top 5 in DynamoDB, and returns the top 3 to the contact flow.
-3. The contact flow speaks the top 3 vanity options to the caller.
-4. A Cloudscape React dashboard queries an API to show the vanity numbers from the last 5 callers.
 
 ## Architecture
 
