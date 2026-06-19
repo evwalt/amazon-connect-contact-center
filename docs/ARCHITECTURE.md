@@ -43,6 +43,10 @@ Lambda: RecentCallers
 DynamoDB: VanityCallLog
 ```
 
+![Architecture diagram](screenshots/architecture-diagram.jpg)
+
+*End-to-end system: inbound call path (left) and web dashboard path (right).*
+
 ## Components
 
 ### Amazon Connect

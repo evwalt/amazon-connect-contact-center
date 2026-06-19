@@ -113,6 +113,10 @@ The app shows a Cloudscape table with the caller number, timestamp, and vanity n
 
 ## Screenshots
 
+**Architecture diagram:**
+
+![Architecture diagram](docs/screenshots/architecture-diagram.jpg)
+
 **Contact flow in Amazon Connect:**
 
 ![Contact flow](docs/screenshots/contact-flow.jpg)
