@@ -8,25 +8,30 @@ This document records the key decisions made during architecture and implementat
 
 ### Decision
 
-Score each candidate by a simple two-factor formula:
+Score each candidate using a three-tier formula:
 
 ```
-score = (word_count * 10) + longest_word_length
+primary   = (has_word ? 10_000 : 0) + (longest_word × 10 + word_count) − (digit_count × 10)
+tiebreaker = longest_contiguous_alpha_run
 ```
 
-- `word_count`: number of distinct dictionary words found anywhere in the 7-digit alpha mapping
-- `longest_word_length`: character length of the longest single word found
+- `has_word`: whether any dictionary word (length 3–7) appears anywhere in the candidate
+- `longest_word`: character length of the longest matched word
+- `word_count`: number of distinct dictionary words found
+- `digit_count`: number of literal `0` or `1` characters in the candidate (these map to no keypad letters and break readability; each deducts 10 points)
+- `longest_contiguous_alpha_run`: used only to break ties after the primary score
 
 The top 5 by score are stored; the top 3 are spoken.
 
-**Example:** For `+1-800-569-3377`:
+**Example:** For `+1-800-356-9377` (subscriber `3569377`):
 
-- Alpha mapping: `567-3377` → candidates include `FLOWERS` (7 letters, 1 word)
-- `score = (1 * 10) + 7 = 17`
+- `FLOWERS` is a candidate: 1 word, longest = 7 letters, no 0/1 digits
+- `primary = 10_000 + (7 × 10 + 1) − 0 = 10_071`
+- Ranks first; other 7-letter candidates without a full word score at most `70 + word_count`
 
 ### Why This Formula
 
-It is simple, deterministic, and explainable. It rewards numbers where a long, recognizable word appears (the most memorable vanity numbers) and breaks ties by sheer word coverage. A purely length-based approach would not distinguish `FLOWERS` from `ZIPPERS` in terms of memorability, so word presence matters.
+The 10,000-point word-presence offset keeps any word-matching candidate strictly above all no-word candidates, regardless of digit penalties. Within each tier, longer single words beat shorter ones (memorability), and word count breaks further ties. The digit penalty discourages candidates where unavoidable `0`/`1` positions appear mid-word, since those positions cannot be converted to letters.
 
 ### Alternatives Considered
 
@@ -131,22 +136,23 @@ SAM does not natively manage CloudFront distributions. The web app is hosted dir
 
 ---
 
-## 6. Web App: Static HTML/JS vs. Framework
+## 6. Web App: Cloudscape React + Vite
 
 ### Decision
 
-Plain HTML, CSS, and JavaScript. No React, no build step.
+React with [Cloudscape Design System](https://cloudscape.design/) components, bundled by Vite. Runs locally via `npm run dev:web`; no S3 or CloudFront hosting for this assignment.
 
-### Why
+### Why Cloudscape
 
-- Zero build toolchain: reviewers can inspect and understand the web app without Node.js installed
-- Deployable directly with `aws s3 sync`
-- The feature set (fetch data, render a table) does not justify a framework
-- Keeps the repo's conceptual surface area focused on the core AWS components
+Cloudscape is the open-source design system used across AWS console products. For an Amazon Connect assignment, using Cloudscape signals familiarity with AWS-aligned UI conventions and produces a professional result without custom CSS. The `AppLayout` + `Table` pattern matches exactly how the Connect console itself presents tabular data.
+
+### Why Local-Only (No S3 Hosting)
+
+SAM does not manage CloudFront distributions natively, and adding S3 static website hosting to the SAM template introduces significant additional configuration (bucket policy, CORS, OAI or OAC, output URL) that is not the focus of this assignment. The feature requirement is "display the last 5 callers" — a Vite dev server satisfies that for demo purposes. Documented as a "more time" item.
 
 ### Tradeoff
 
-Scaling the web app to add features (real-time updates, filtering, pagination) would require rearchitecting to a framework. Documented as a "more time" item.
+The web app cannot be accessed without running `npm run dev:web` locally. In production: S3 + CloudFront via CDK (SAM's CloudFront support is limited), with HTTPS and a custom domain.
 
 ---
 

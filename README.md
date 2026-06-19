@@ -19,7 +19,6 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture diagr
 - AWS CLI configured with appropriate credentials
 - AWS SAM CLI (`brew install aws-sam-cli`)
 - An Amazon Connect instance with a claimed phone number
-- Docker (for local DynamoDB during development)
 
 ## Project Structure
 
@@ -28,75 +27,59 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture diagr
 ├── src/
 │   ├── vanity-converter/   # Lambda invoked by Connect
 │   └── recent-callers/     # Lambda invoked by API Gateway for the web app
-├── tests/
-│   ├── unit/               # Pure function tests, no AWS
-│   └── integration/        # Tests against DynamoDB Local
-├── web/                    # Static web app (HTML/JS/CSS)
-├── connect/                # Exported contact flow JSON
+├── tests/unit/             # Jest unit tests (95 tests, 100% coverage)
+├── web/                    # Cloudscape React app (Vite)
 ├── infrastructure/         # SAM template
-└── scripts/                # Local dev helpers
+├── docs/                   # Architecture, decisions, engineering notes
+└── scripts/                # Local dev helpers (demo-vanity)
 ```
 
 ## Local Development
 
-### 1. Start DynamoDB Local
+### 1. Install dependencies
 
 ```bash
-docker-compose -f scripts/docker-compose.yml up -d
+npm install
 ```
 
-### 2. Install dependencies
+### 2. Run unit tests
 
 ```bash
-npm install --prefix src/vanity-converter
-npm install --prefix src/recent-callers
+npm test
 ```
 
-### 3. Run unit tests
+### 3. Type-check
 
 ```bash
-npm test --prefix src/vanity-converter
+npm run build
 ```
 
-### 4. Seed test data
+### 4. Build Lambda bundles
 
 ```bash
-node scripts/seed.js
-```
-
-### 5. Run integration tests
-
-```bash
-AWS_ENDPOINT_URL=http://localhost:8000 npm run test:integration --prefix src/vanity-converter
+npm run build:sam
 ```
 
 ## Deployment
 
 Deployment instructions are the intended path and may be updated as implementation progresses.
 
-### 1. Build
+### 1. Build Lambda bundles
 
 ```bash
-sam build
+npm run build:sam
 ```
 
 ### 2. Deploy (guided first run)
 
 ```bash
-sam deploy --guided
+sam deploy --template-file infrastructure/template.yaml --guided
 ```
 
-This will prompt for:
-
-- Stack name (e.g., `vanity-numbers-dev`)
-- AWS region
-- Amazon Connect instance ARN
-- Confirmation to create IAM roles
-
-Subsequent deploys:
+This prompts for stack name, region, and IAM capability confirmation. Settings are saved to `samconfig.toml`. Subsequent deploys:
 
 ```bash
-sam deploy
+sam deploy --template-file infrastructure/template.yaml
 ```
 
 ### 3. Wire up Amazon Connect
@@ -104,10 +87,9 @@ sam deploy
 After deploying:
 
 1. Note the `VanityConverterFunctionArn` from the SAM output.
-2. In the Amazon Connect console, grant the Connect instance permission to invoke that Lambda (Connect → AWS Lambda → Add Lambda Function).
-3. Import `connect/contact-flow.json` as a new contact flow.
-4. Update the "Invoke AWS Lambda function" block with the deployed Lambda ARN.
-5. Assign the contact flow to a phone number.
+2. In the Amazon Connect console, go to **AWS Lambda** and add the function ARN to the allowed list.
+3. Build the contact flow manually in the Connect console. See [docs/ARCHITECTURE.md — Contact Flow Design](docs/ARCHITECTURE.md#contact-flow-design) for the exact flow structure.
+4. Assign the contact flow to your claimed phone number.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for step-by-step Connect setup instructions.
 
@@ -129,7 +111,17 @@ The app shows a Cloudscape table with the caller number, timestamp, and vanity n
 
 1. Call the Connect phone number from any phone.
 2. Listen for 3 vanity number options.
-3. Open the web app URL in a browser — your number should appear as the most recent caller.
+3. Open `http://localhost:5173` (after running `npm run dev:web`) — your number should appear as the most recent caller.
+
+## Screenshots
+
+**Contact flow in Amazon Connect:**
+
+![Contact flow](docs/screenshots/contact-flow.jpg)
+
+**Recent Callers web dashboard:**
+
+![Recent Callers dashboard](docs/screenshots/web.jpg)
 
 ## Bonus: Live Phone Number
 

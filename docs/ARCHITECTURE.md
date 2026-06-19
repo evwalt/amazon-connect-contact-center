@@ -31,7 +31,7 @@ Disconnect
 Browser
     │
     ▼
-Static Web App (S3)
+Web App (Vite / local)
     │  GET /callers
     ▼
 API Gateway (HTTP API)
@@ -49,7 +49,7 @@ DynamoDB: VanityCallLog
 
 - Claimed phone number routes inbound calls to a contact flow.
 - Contact flow checks for caller ID, invokes the VanityConverter Lambda, and speaks the result.
-- The contact flow is exported to `connect/contact-flow.json` for import into any Connect instance.
+- The contact flow is built manually in the Connect console. The flow structure is documented in the [Contact Flow Design](#contact-flow-design) section below.
 
 ### VanityConverter Lambda
 
@@ -69,7 +69,7 @@ Responsibilities:
 
 **Runtime:** Node.js 20.x  
 **Trigger:** API Gateway HTTP API (GET /callers)  
-**Timeout:** 5 seconds
+**Timeout:** 10 seconds
 
 Responsibilities:
 
@@ -112,11 +112,11 @@ Note: Using a fixed GSI partition key is a known anti-pattern at high call volum
 
 HTTP API (not REST API) — lower cost, simpler configuration, no usage plans needed at this scale. Single route: `GET /callers`.
 
-CORS is enabled on the API Gateway to allow the S3-hosted web app (different origin) to call the API.
+CORS is enabled (`AllowOrigins: *`) so the locally-served web app can call the API from a different origin.
 
-### Static Web App (S3)
+### Web App
 
-Plain HTML, CSS, and JavaScript — no build step, no framework. Polls `GET /callers` on page load and displays a table of the last 5 callers and their vanity numbers. The S3 bucket is configured for static website hosting.
+React + Vite + [Cloudscape Design System](https://cloudscape.design/). Runs locally via `npm run dev:web` (Vite dev server at `http://localhost:5173`). Fetches `GET /callers` on load and displays the last 5 callers in a Cloudscape `Table`. The API URL is injected at build time via the `VITE_API_URL` environment variable (see `web/.env.example`).
 
 ## Data Flow: Inbound Call
 
@@ -130,8 +130,8 @@ Plain HTML, CSS, and JavaScript — no build step, no framework. Polls `GET /cal
 
 ## Data Flow: Web App
 
-1. Browser loads `index.html` from S3.
-2. `app.js` sends `GET /callers` to API Gateway.
+1. Browser loads the Vite dev server (`http://localhost:5173`).
+2. React app sends `GET /callers` to the deployed API Gateway endpoint.
 3. API Gateway invokes RecentCallers Lambda.
 4. Lambda queries DynamoDB GSI for 5 most recent records.
 5. Lambda returns JSON array of caller records.
@@ -243,11 +243,11 @@ The TTS prompt references Connect flow attributes `$.Attributes.vanity1`, `$.Att
 After running `sam deploy`:
 
 1. Open the Amazon Connect console and navigate to your instance.
-2. Under **AWS Lambda**, add the `VanityConverterFunction` ARN (output from SAM) to the allowed Lambda list.
-3. In the **Contact flows** section, choose **Import flow** and upload `connect/contact-flow.json`.
-4. Open the imported flow, find the **Invoke AWS Lambda function** block, and update the Lambda ARN to the deployed function ARN.
+2. Under **AWS Lambda**, add the `VanityConverterFunction` ARN (from SAM output) to the allowed Lambda list.
+3. In the **Contact flows** section, create a new flow that matches the [Contact Flow Design](#contact-flow-design) section above.
+4. In the **Invoke AWS Lambda function** block, select the deployed `VanityConverterFunction`.
 5. Save and publish the contact flow.
-6. Navigate to **Phone numbers**, select your claimed number, and assign it to the imported contact flow.
+6. Navigate to **Phone numbers**, select your claimed number, and assign it to the flow.
 7. Test by calling the number.
 
 ## Infrastructure
@@ -259,7 +259,6 @@ Managed with AWS SAM. Key resources in `infrastructure/template.yaml`:
 | VanityConverterFunction | AWS::Serverless::Function |
 | RecentCallersFunction | AWS::Serverless::Function |
 | VanityCallLogTable | AWS::DynamoDB::Table |
-| CallerApi | AWS::Serverless::HttpApi |
-| WebAppBucket | AWS::S3::Bucket |
+| RecentCallersApi | AWS::Serverless::HttpApi |
 
 IAM follows least-privilege: each Lambda has only the DynamoDB actions it requires (`PutItem` for VanityConverter, `Query` for RecentCallers).
