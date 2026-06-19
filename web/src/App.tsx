@@ -15,6 +15,19 @@ interface CallerRecord {
 
 const API_URL: string = import.meta.env.VITE_API_URL ?? '';
 
+// Formats E.164 numbers for display. +17575701813 → +1 (757) 570-1813.
+// Returns the raw value unchanged for anything that doesn't match.
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length === 11 && digits[0] === '1') {
+    return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  return raw;
+}
+
 export default function App() {
   const [callers, setCallers] = useState<CallerRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +70,7 @@ export default function App() {
                 {
                   id: 'callerNumber',
                   header: 'Caller Number',
-                  cell: (item) => item.callerNumber,
+                  cell: (item) => formatPhone(item.callerNumber),
                   width: 180,
                 },
                 {
