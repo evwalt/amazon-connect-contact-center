@@ -11,6 +11,8 @@
 
 ## System Overview
 
+### Call Processing Flow
+
 ```
 Caller (PSTN)
     │
@@ -34,9 +36,11 @@ Play TTS prompt with vanity1, vanity2, vanity3
     │
     ▼
 Disconnect
+```
 
-──────────────────────────────────────────────
+### Recent Callers Web App Flow
 
+```
 Browser
     │
     ▼
@@ -52,9 +56,13 @@ Lambda: RecentCallers
 DynamoDB: VanityCallLog
 ```
 
-![Architecture diagram](screenshots/architecture-diagram.jpg)
+### Call Processing Architecture Diagram
 
-*End-to-end system: inbound call path (top) and web dashboard path (bottom).*
+![Call Flow Architecture Diagram](screenshots/call-flow.png)
+
+### Recent Callers Web App Architecture Diagram
+
+![Web App Flow Architecture Diagram](screenshots/web-app-flow.png)
 
 ## Components
 
