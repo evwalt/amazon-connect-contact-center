@@ -40,7 +40,7 @@ Disconnect
 Browser
     │
     ▼
-Web App (Vite / local)
+Web App (S3 / Cloudscape React)
     │  GET /callers
     ▼
 API Gateway (HTTP API)
@@ -54,7 +54,7 @@ DynamoDB: VanityCallLog
 
 ![Architecture diagram](screenshots/architecture-diagram.jpg)
 
-*End-to-end system: inbound call path (left) and web dashboard path (right).*
+*End-to-end system: inbound call path (top) and web dashboard path (bottom).*
 
 ## Components
 
