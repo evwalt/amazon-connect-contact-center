@@ -2,6 +2,16 @@
 
 A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact flow that converts caller phone numbers to vanity numbers and presents the best options via text-to-speech, backed by a DynamoDB call log and a web app showing recent callers.
 
+- [What It Does](#what-it-does)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [Local Development](#local-development)
+- [Deployment](#deployment)
+- [Testing the Solution](#testing-the-solution)
+- [Screenshots](#screenshots)
+- [Bonus: Live Phone Number](#bonus-live-phone-number)
+- [Documentation](#documentation)
+
 ## What It Does
 
 1. A caller dials an Amazon Connect phone number.
