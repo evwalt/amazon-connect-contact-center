@@ -28,13 +28,17 @@
 - [x] RecentCallers Lambda
 - [x] API Gateway `/callers`
 - [x] Recent callers web dashboard (local Vite)
+- [x] Deploy web dashboard to S3
+- [x] Architecture diagram
+- [x] Deployment instructions polish
+- [x] Send repo to Matt for pre-review *(when done)*
 
 ## Next
 
-- [ ] Improve vanity number quality
+- [ ] Send repo to Matt for pre-review
 
 ## Later
 
-- [ ] Architecture diagram
-- [ ] Deployment instructions polish
-- [ ] Send repo to Matt for pre-review
+- [ ] Improve vanity number quality
+- [ ] CloudFront + HTTPS for dashboard
+- [ ] Deploy contact flow as code
