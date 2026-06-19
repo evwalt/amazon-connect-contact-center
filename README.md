@@ -101,25 +101,32 @@ After deploying:
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for step-by-step Connect setup instructions.
 
-### 4. Run the web app locally
+### 4. Deploy the web dashboard
 
-After `sam deploy`, copy the `RecentCallersApiUrl` output value, then:
+The dashboard is hosted on S3 at:
+
+> **http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com**
+
+To redeploy after changes (requires `web/.env.local` with `VITE_API_URL` set):
 
 ```bash
-# web/.env.local — git-ignored
-echo "VITE_API_URL=https://<api-id>.execute-api.us-west-2.amazonaws.com" > web/.env.local
-
-npm run dev:web
-# Opens http://localhost:5173
+npm run deploy:web
 ```
 
-The app shows a Cloudscape table with the caller number, timestamp, and vanity numbers for the last 5 callers.
+This rebuilds the Vite bundle and syncs `web/dist/` to S3.
+
+**Local development alternative:** run `npm run dev:web` for a hot-reloading dev server at `http://localhost:5173`. Requires `web/.env.local`:
+
+```bash
+echo "VITE_API_URL=https://easj5hexd1.execute-api.us-west-2.amazonaws.com" > web/.env.local
+npm run dev:web
+```
 
 ## Testing the Solution
 
 1. Call the Connect phone number from any phone.
 2. Listen for 3 vanity number options.
-3. Open `http://localhost:5173` (after running `npm run dev:web`) — your number should appear as the most recent caller.
+3. Open the [live dashboard](http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com) — your number should appear as the most recent caller.
 
 ## Screenshots
 

@@ -10,6 +10,7 @@
     "demo:vanity": "node -e \"require('esbuild').buildSync({entryPoints:['scripts/demo-vanity.ts'],bundle:true,platform:'node',outfile:'dist/demo-vanity.js'})\" && node dist/demo-vanity.js",
     "dev:web": "npm install --prefix web && npm run --prefix web dev",
     "build:web": "npm install --prefix web && npm run --prefix web build",
+    "deploy:web": "npm run build:web && aws s3 sync web/dist/ s3://vanity-web-141262468065/ --delete",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
