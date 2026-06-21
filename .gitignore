@@ -29,6 +29,10 @@ Thumbs.db
 .aws-sam/
 samconfig.toml
 
+# CDK
+infrastructure/cdk/cdk.out/
+infrastructure/cdk/node_modules/
+
 # Testing
 .nyc_output/
 

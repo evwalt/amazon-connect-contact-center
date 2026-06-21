@@ -1,0 +1,114 @@
+{
+  "Version": "2019-10-30",
+  "StartAction": "Generate Vanity Numbers",
+  "Metadata": {
+    "entryPointPosition": {
+      "x": -27.2,
+      "y": 57.6
+    },
+    "ActionMetadata": {
+      "Read Vanity Results": {
+        "position": {
+          "x": 366.4,
+          "y": 33.6
+        },
+        "isFriendlyName": true
+      },
+      "Generate Vanity Numbers": {
+        "position": {
+          "x": 80,
+          "y": 56.8
+        },
+        "isFriendlyName": true,
+        "parameters": {
+          "LambdaFunctionARN": {
+            "displayName": "amazon-connect-contact-cen-VanityConverterFunction-YlAP785LybYK"
+          }
+        },
+        "dynamicMetadata": {}
+      },
+      "c1a1dd30-cec8-4858-99f2-89f57c7f3607": {
+        "position": {
+          "x": 652,
+          "y": 216.8
+        }
+      },
+      "Read Error Message": {
+        "position": {
+          "x": 366.4,
+          "y": 239.2
+        },
+        "isFriendlyName": true
+      }
+    },
+    "Annotations": [],
+    "name": "Vanity Number Generator",
+    "description": "",
+    "type": "contactFlow",
+    "status": "PUBLISHED",
+    "hash": {}
+  },
+  "Actions": [
+    {
+      "Parameters": {
+        "SkipWhenDTMFBufferEnabled": "false",
+        "Text": "Your top vanity phone numbers are $.External.vanity1, $.External.vanity2, and $.External.vanity3. Goodbye."
+      },
+      "Identifier": "Read Vanity Results",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "c1a1dd30-cec8-4858-99f2-89f57c7f3607",
+        "Errors": [
+          {
+            "NextAction": "c1a1dd30-cec8-4858-99f2-89f57c7f3607",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {
+        "LambdaFunctionARN": "arn:aws:lambda:us-west-2:141262468065:function:amazon-connect-contact-cen-VanityConverterFunction-YlAP785LybYK",
+        "InvocationTimeLimitSeconds": "8",
+        "InvocationType": "SYNCHRONOUS",
+        "ResponseValidation": {
+          "ResponseType": "JSON"
+        }
+      },
+      "Identifier": "Generate Vanity Numbers",
+      "Type": "InvokeLambdaFunction",
+      "Transitions": {
+        "NextAction": "Read Vanity Results",
+        "Errors": [
+          {
+            "NextAction": "Read Error Message",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    },
+    {
+      "Parameters": {},
+      "Identifier": "c1a1dd30-cec8-4858-99f2-89f57c7f3607",
+      "Type": "DisconnectParticipant",
+      "Transitions": {}
+    },
+    {
+      "Parameters": {
+        "SkipWhenDTMFBufferEnabled": "false",
+        "Text": "Sorry, something went wrong while generating your vanity phone number. Please try again later."
+      },
+      "Identifier": "Read Error Message",
+      "Type": "MessageParticipant",
+      "Transitions": {
+        "NextAction": "c1a1dd30-cec8-4858-99f2-89f57c7f3607",
+        "Errors": [
+          {
+            "NextAction": "c1a1dd30-cec8-4858-99f2-89f57c7f3607",
+            "ErrorType": "NoMatchingError"
+          }
+        ]
+      }
+    }
+  ]
+}
