@@ -31,7 +31,7 @@
 - [x] Deploy web dashboard to S3
 - [x] Architecture diagram
 - [x] Deployment instructions polish
-- [x] Send repo to Matt for pre-review
+- [x] Conduct pre-review
 
 ## Next
 
