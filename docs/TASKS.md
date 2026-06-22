@@ -35,9 +35,12 @@
 
 ## Next
 
+- [ ] Deploy contact flow as code
+- [ ] Associate phone number to contact flow via CDK
+- [ ] Add Set Voice block to contact flow
+- [ ] Add Set Logging block to contact flow
 - [ ] Improve vanity number quality
 - [ ] CloudFront + HTTPS for dashboard
-- [ ] Deploy contact flow as code
 
 ## Later
 
