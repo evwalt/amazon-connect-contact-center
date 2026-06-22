@@ -17,14 +17,16 @@ const REPO_ROOT = path.join(__dirname, '../../..');
 const EXPORTED_LAMBDA_ARN =
   'arn:aws:lambda:us-west-2:141262468065:function:amazon-connect-contact-cen-VanityConverterFunction-YlAP785LybYK';
 
+interface VanityNumberStackProps extends cdk.StackProps {
+  connectInstanceId?: string;
+  phoneNumberId?: string;
+}
+
 export class VanityNumberStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: VanityNumberStackProps) {
     super(scope, id, props);
 
-    // Optional: Connect instance ID for contact flow automation.
-    // Provide via: cdk deploy -c connectInstanceId=<id>
-    // Omit to deploy infrastructure only (contact flow must be created manually).
-    const connectInstanceId = this.node.tryGetContext('connectInstanceId') as string | undefined;
+    const connectInstanceId = props?.connectInstanceId;
 
     // ── DynamoDB ──────────────────────────────────────────────────────────────
 
@@ -156,7 +158,7 @@ export class VanityNumberStack extends cdk.Stack {
           action: 'createContactFlow',
           parameters: {
             InstanceId: connectInstanceId,
-            Name: 'Vanity Number Generator',
+            Name: 'Vanity Number Generator - CDK v2',
             Type: 'CONTACT_FLOW',
             Content: resolvedContent,
           },
@@ -192,12 +194,11 @@ export class VanityNumberStack extends cdk.Stack {
         value: contactFlow.getResponseField('ContactFlowId'),
       });
 
-      // Optional: associate an existing claimed phone number with the contact flow.
-      // Provide via: cdk deploy -c connectInstanceId=<id> -c phoneNumberId=<id>
-      // Find phoneNumberId: aws connect list-phone-numbers-v2 --instance-id <id>
-      const phoneNumberId = this.node.tryGetContext('phoneNumberId') as string | undefined;
+      const phoneNumberId = props?.phoneNumberId;
 
       if (phoneNumberId) {
+        const phoneNumberArn = `arn:aws:connect:${this.region}:${this.account}:phone-number/${phoneNumberId}`;
+
         const phoneAssociation = new cr.AwsCustomResource(this, 'PhoneNumberAssociation', {
           resourceType: 'Custom::ConnectPhoneAssociation',
           onCreate: {
@@ -229,7 +230,7 @@ export class VanityNumberStack extends cdk.Stack {
           policy: cr.AwsCustomResourcePolicy.fromStatements([
             new iam.PolicyStatement({
               actions: ['connect:AssociatePhoneNumberContactFlow'],
-              resources: [`${instanceArn}/*`],
+              resources: [phoneNumberArn, `${instanceArn}/*`],
             }),
           ]),
         });
