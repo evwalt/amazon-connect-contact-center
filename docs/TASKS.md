@@ -36,10 +36,10 @@
 - [x] Deploy and validate CDK infrastructure
 - [x] Deploy contact flow as code
 - [x] Associate phone number to contact flow via CDK
+- [x] Validate live phone routing to CDK-managed contact flow
 
 ## Next
 
-- [ ] Validate live phone routing to CDK-managed contact flow
 - [ ] Add Set Voice block to contact flow
 - [ ] Add Set Logging block to contact flow
 - [ ] Improve vanity number quality
