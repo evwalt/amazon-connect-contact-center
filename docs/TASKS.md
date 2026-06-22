@@ -34,11 +34,12 @@
 - [x] Conduct pre-review
 - [x] Migrate infrastructure from SAM to CDK
 - [x] Deploy and validate CDK infrastructure
+- [x] Deploy contact flow as code
+- [x] Associate phone number to contact flow via CDK
 
 ## Next
 
-- [ ] Deploy contact flow as code
-- [ ] Associate phone number to contact flow via CDK
+- [ ] Validate live phone routing to CDK-managed contact flow
 - [ ] Add Set Voice block to contact flow
 - [ ] Add Set Logging block to contact flow
 - [ ] Improve vanity number quality
