@@ -34,37 +34,55 @@ Or from the repo root:
 npm install --prefix infrastructure/cdk
 ```
 
-## Step 3: Configure context (required for contact flow automation)
+## Step 3: Configure environment variables (required for contact flow automation)
 
-Open `infrastructure/cdk/cdk.json` and fill in the two context values:
+The stack reads two optional environment variables. If both are omitted, the stack deploys infrastructure only (DynamoDB, Lambdas, API Gateway) and the contact flow must be configured manually — identical to the SAM path.
 
-```json
-{
-  "app": "npx ts-node --prefer-ts-exts bin/app.ts",
-  "context": {
-    "connectInstanceId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "phoneNumberId":    "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  }
-}
-```
+| Variable | Required | Description |
+|---|---|---|
+| `CONNECT_INSTANCE_ID` | For contact flow automation | Amazon Connect instance UUID |
+| `CONNECT_PHONE_NUMBER_ID` | For phone number routing | Claimed phone number UUID (requires `CONNECT_INSTANCE_ID`) |
 
-**Finding `connectInstanceId`:**
+**Finding the values:**
 
 ```bash
+# CONNECT_INSTANCE_ID
 aws connect list-instances --region us-west-2 \
   --query 'InstanceSummaryList[*].{Id:Id,Alias:InstanceAlias}'
-```
 
-**Finding `phoneNumberId`** (requires `connectInstanceId` first):
-
-```bash
+# CONNECT_PHONE_NUMBER_ID (requires CONNECT_INSTANCE_ID)
 aws connect list-phone-numbers-v2 \
-  --instance-id <connectInstanceId> \
+  --instance-id <CONNECT_INSTANCE_ID> \
   --region us-west-2 \
   --query 'ListPhoneNumbersSummaryList[*].{Id:PhoneNumberId,Number:PhoneNumber}'
 ```
 
-**If you leave both values empty** (`""`), the stack deploys infrastructure only (DynamoDB, Lambdas, API Gateway). The contact flow and phone number association must be configured manually in the Connect console, the same as the SAM path. The contact flow JSON at `infrastructure/contact-flow.json` can be imported manually.
+**Setting the variables** — choose one approach:
+
+Option A — export in your shell session:
+
+```bash
+export CONNECT_INSTANCE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+export CONNECT_PHONE_NUMBER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+Option B — prefix on the deploy command:
+
+```bash
+CONNECT_INSTANCE_ID=xxxxxxxx CONNECT_PHONE_NUMBER_ID=xxxxxxxx npm run deploy
+```
+
+Option C — create a local `.env` file (already gitignored) and source it:
+
+```bash
+# infrastructure/cdk/.env.local
+CONNECT_INSTANCE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+CONNECT_PHONE_NUMBER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+```bash
+source infrastructure/cdk/.env.local
+```
 
 ## Step 4: Deploy
 
