@@ -32,11 +32,11 @@
 - [x] Architecture diagram
 - [x] Deployment instructions polish
 - [x] Conduct pre-review
+- [x] Migrate infrastructure from SAM to CDK
+- [x] Deploy and validate CDK infrastructure
 
 ## Next
 
-- [ ] Migrate infrastructure from SAM to CDK
-- [ ] Deploy and validate CDK infrastructure
 - [ ] Deploy contact flow as code
 - [ ] Associate phone number to contact flow via CDK
 - [ ] Add Set Voice block to contact flow
