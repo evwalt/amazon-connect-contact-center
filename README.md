@@ -31,6 +31,9 @@ Call the number from any phone to hear 3 vanity options. Your call appears in th
 - [Project Structure](#project-structure)
 - [Local Development](#local-development)
 - [Deployment](#deployment)
+  - [CDK (recommended)](#cdk-recommended)
+  - [SAM (original)](#sam-original)
+  - [Web dashboard](#web-dashboard)
 - [Testing the Solution](#testing-the-solution)
 - [Screenshots](#screenshots)
 - [Documentation](#documentation)
@@ -102,7 +105,7 @@ export CONNECT_PHONE_NUMBER_ID=<your-phone-number-id>
 npm run deploy
 ```
 
-This deploys Lambda, DynamoDB, API Gateway, the contact flow, and associates the phone number — no manual Connect console steps required. The web dashboard is deployed separately with `npm run deploy:web` after setting `web/.env.local` to the CDK `RecentCallersApiUrl` output.
+This deploys Lambda, DynamoDB, API Gateway, the contact flow, and associates the phone number — no manual Connect console steps required. The web dashboard is a separate step; see [Web dashboard](#web-dashboard) below.
 
 ### SAM (original)
 
@@ -133,26 +136,24 @@ After deploying:
 3. Build the contact flow manually in the Connect console. See [docs/ARCHITECTURE.md — Contact Flow Design](docs/ARCHITECTURE.md#contact-flow-design) for the exact flow structure.
 4. Assign the contact flow to your claimed phone number.
 
-#### 4. Deploy the web dashboard
+### Web dashboard
+
+Applies to both CDK and SAM. The CDK stack deploys backend resources only — the web dashboard is built and deployed separately.
 
 The dashboard is hosted on S3 at:
 
 > **<http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com>**
 
-To redeploy after changes (requires `web/.env.local` with `VITE_API_URL` set):
+After deploying either stack, set `VITE_API_URL` to the `RecentCallersApiUrl` output and deploy:
 
 ```bash
+echo "VITE_API_URL=<RecentCallersApiUrl>" > web/.env.local
 npm run deploy:web
 ```
 
 This rebuilds the Vite bundle and syncs `web/dist/` to S3.
 
-**Local development alternative:** run `npm run dev:web` for a hot-reloading dev server at `http://localhost:5173`. Requires `web/.env.local`:
-
-```bash
-echo "VITE_API_URL=<RecentCallersApiUrl>" > web/.env.local
-npm run dev:web
-```
+**Local development:** run `npm run dev:web` for a hot-reloading server at `http://localhost:5173` (requires the same `web/.env.local`).
 
 ## Testing the Solution
 
