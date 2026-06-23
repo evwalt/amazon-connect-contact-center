@@ -23,8 +23,6 @@ Amazon Connect
     ▼
 Contact Flow
     │
-    ├─[No caller ID]──► Play error message ──► Disconnect
-    │
     ├─ Invoke Lambda: VanityConverter (timeout: 8s)
     │     │
     │     ├─[Lambda error]──► Play error message ──► Disconnect
@@ -236,6 +234,9 @@ The contact flow source of truth is `infrastructure/contact-flow.json`, deployed
 
 ```
 [Start]
+    │
+    ▼
+[Set Logging Behavior: Enabled]
     │
     ▼
 [Set Voice: Matthew]

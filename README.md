@@ -165,7 +165,7 @@ This rebuilds the Vite bundle and syncs `web/dist/` to S3.
 
 **Architecture diagram:**
 
-![Architecture diagram](docs/screenshots/architecture-diagram.jpg)
+![Architecture diagram](docs/screenshots/architecture-diagram.png)
 
 **Contact flow in Amazon Connect:**
 
