@@ -59,25 +59,25 @@ The API is exposed to the public internet without WAF rules. In production: WAF 
 ## What I Would Do With More Time
 
 **Real-time web app updates**
-Currently the web app polls on page load. With more time, I'd replace the polling pattern with API Gateway WebSocket or AWS AppSync subscriptions, so the web app updates automatically when a new call comes in.
+Currently the web app fetches on page load only — a reviewer has to reload after calling to see their result. The production pattern is API Gateway WebSocket or AWS AppSync subscriptions so the dashboard updates automatically when a new call arrives, without a reload. The current design was a deliberate simplicity tradeoff given the polling-on-load model is sufficient for a demo.
+
+**CDK-managed web dashboard (S3 + CloudFront + HTTPS)**
+The web dashboard is deployed outside any infrastructure stack via a `deploy:web` script that hardcodes the author's S3 bucket. This is the one place where "deploy into your own account" breaks down — a reviewer must create a bucket manually and update the script. The S3 bucket was intentionally scoped out of the SAM template (DECISIONS.md §12) and later the CDK stack to keep the primary deployment focused. The completion is a CDK construct that provisions the bucket, bucket policy, CloudFront distribution, and ACM certificate — giving reviewers a fully reproducible deployment and production-grade HTTPS in one step.
+
+**Integration tests against a deployed stack**
+The test suite is 100% unit tests with mocked AWS services. Every Connect-specific failure during this project — the `AwsCustomResource` lifecycle bug, the Set Logging API schema incompatibility, the truncated action identifier causing `InvalidContactFlowException` — was discovered by deploying to AWS, not by a test. An integration test suite that deploys to a real dev stack and asserts end-to-end behavior (inbound call event → DynamoDB record → API response → correct vanity output) would catch this class of error in CI rather than during manual validation.
 
 **Vanity number quality improvements**
-The scoring formula is simple and works, but it doesn't account for word frequency (common words are more memorable than obscure ones) or phonetic quality (some alpha strings are pronounceable even without being words). A better approach would weight by word frequency from a corpus and add a syllable-structure score.
+The scoring formula works but it doesn't account for word frequency (common words are more memorable than obscure ones) or phonetic quality (some alpha strings are pronounceable even without being dictionary words). Both alternatives were explicitly considered and deferred during the initial design — word frequency requires a corpus, phonetic scoring adds implementation complexity — in favor of getting a working, documented formula shipped first (DECISIONS.md §1).
 
-**Area code vanity mapping**
-The current implementation only converts the 7-digit subscriber number. A natural extension is to also generate vanity candidates for the full 10-digit number (area code + subscriber), or specifically for toll-free area codes (800, 888, etc.) where the area code is already part of the brand identity.
+**Operational observability**
+Connect flow logging is enabled and Lambda logs include the `ContactId` as a correlation ID, so the data is there. What's missing is acting on it: a Lambda error rate alarm, an invocation duration alarm approaching the 8-second Connect timeout ceiling, DynamoDB write failure alerting, and X-Ray tracing across the Connect → Lambda → DynamoDB path. Without alarms, the current observability is passive — logs exist but nobody is notified when things go wrong. This was documented as Shortcut #8 and is table stakes for a production deployment.
 
-**Contact flow as code** *(implemented)*
-The contact flow is now deployed as code from `infrastructure/contact-flow.json` via the CDK stack (`infrastructure/cdk/`). The CDK `AwsCustomResource` calls the Connect API to create or update the flow on every `cdk deploy`, and phone number association is also automated. The SAM path still requires a manual import.
-
-**Call history per caller**
-The current web app shows the 5 most recent call events globally. A useful extension would be a per-caller history view — click on a number to see all past calls and their vanity results. This is supported by the call log schema (query by PK = callerNumber) without schema changes.
-
-**CloudFront + custom domain**
-Serving the web app over HTTPS with a custom domain via CloudFront and ACM. This is table stakes for a production web property but was scoped out due to the SAM/CloudFront integration complexity.
+**API authentication**
+The `GET /callers` endpoint is publicly accessible with no authentication. The data exposed is low-sensitivity (vanity number mappings), but unauthenticated internal APIs are a bad practice regardless. The production path is a Cognito user pool with the Cloudscape web app as the client, or an API key for simpler reviewer-only access. Scoped out as Shortcut #3 because the data doesn't warrant the added deployment complexity for a demo.
 
 **CI/CD pipeline**
-A GitHub Actions workflow that runs unit tests on every push, integration tests on PRs, and deploys to a dev stack automatically. The SAM template is already parameterized to support this.
+A GitHub Actions workflow running unit tests on push and integration tests against a dev stack on PRs — the natural follow-on to having integration tests at all. The CDK stack is already parameterized via `CONNECT_INSTANCE_ID` and `CONNECT_PHONE_NUMBER_ID` to support environment-specific deploys.
 
 ---
 
