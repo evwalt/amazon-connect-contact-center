@@ -8,6 +8,8 @@ This directory contains the CDK implementation of the same infrastructure define
 - AWS CLI configured with credentials for the target account
 - AWS CDK CLI: `npm install -g aws-cdk`
 - CDK bootstrap run once in the target account/region (see step 1 below)
+- An Amazon Connect instance (`CONNECT_INSTANCE_ID`) — required for contact flow automation
+- A claimed phone number in that instance (`CONNECT_PHONE_NUMBER_ID`) — required for phone number routing automation
 
 ## Step 1: Bootstrap (one-time per account/region)
 
@@ -110,22 +112,27 @@ The deploy produces the same three outputs as the SAM stack:
 | `VanityCallLogTableName` | DynamoDB table name |
 | `RecentCallersApiUrl` | `GET /callers` endpoint for the web app |
 
-If `CONNECT_INSTANCE_ID` was set
+If `CONNECT_INSTANCE_ID` was set, the stack also outputs:
 
 | Output | Description |
 |---|---|
 | `ContactFlowId` | Connect contact flow ID — already associated to your phone number if `CONNECT_PHONE_NUMBER_ID` was also set |
 
-## Step 5: Update and redeploy the web app
+## Step 5: Run the web app against the deployed stack
 
-The live S3 dashboard (`deploy:web`) is built against the API URL of whichever stack was last used to build it. After deploying the CDK stack, note the `RecentCallersApiUrl` output and rebuild:
+After deploying, set `VITE_API_URL` to the `RecentCallersApiUrl` output:
 
 ```bash
 echo "VITE_API_URL=<RecentCallersApiUrl>" > web/.env.local
-npm run deploy:web
 ```
 
-This rebuilds the Vite bundle and syncs it to the existing S3 bucket. The dashboard will then fetch from the CDK stack's API.
+**Local development (recommended for reviewers):**
+
+```bash
+npm run dev:web   # hot-reloading at http://localhost:5173
+```
+
+**Deploying to S3:** `npm run deploy:web` syncs `web/dist/` to the author's S3 bucket (`vanity-web-141262468065`). To deploy to your own account, create an S3 bucket with static website hosting enabled and update the bucket name in the root `package.json` `deploy:web` script before running it.
 
 ## Comparing CDK and SAM
 

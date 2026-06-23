@@ -144,27 +144,28 @@ After deploying:
 
 1. Note the `VanityConverterFunctionArn` from the SAM output.
 2. In the Amazon Connect console, go to **AWS Lambda** and add the function ARN to the allowed list.
-3. Build the contact flow manually in the Connect console. See [docs/ARCHITECTURE.md — Contact Flow Design](docs/ARCHITECTURE.md#contact-flow-design) for the exact flow structure.
+3. Import `infrastructure/contact-flow.json` as a new contact flow:
+   - In the Connect console, go to **Routing → Contact flows**, click **Create contact flow**, then use the **Import flow** option from the editor's top-right menu.
+   - In the imported flow, open the **Invoke AWS Lambda function** block and replace the existing Lambda ARN with the `VanityConverterFunctionArn` from the SAM output. (The JSON file contains an account-specific ARN that must be updated.)
+   - Save and publish the flow.
 4. Assign the contact flow to your claimed phone number.
 
 ### Web dashboard
 
 Applies to both CDK and SAM. The CDK stack deploys backend resources only — the web dashboard is built and deployed separately.
 
-The dashboard is hosted on S3 at:
+The dashboard is live at:
 
 > **<http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com>**
 
-After deploying either stack, set `VITE_API_URL` to the `RecentCallersApiUrl` output and deploy:
+**Reviewer note:** `npm run deploy:web` syncs the built app to the author's S3 bucket (`vanity-web-141262468065` in account `141262468065`) and is not portable to a different account. Reviewers who want to run the dashboard against their own deployed stack should use local development instead:
 
 ```bash
 echo "VITE_API_URL=<RecentCallersApiUrl>" > web/.env.local
-npm run deploy:web
+npm run dev:web   # hot-reloading at http://localhost:5173
 ```
 
-This rebuilds the Vite bundle and syncs `web/dist/` to S3.
-
-**Local development:** run `npm run dev:web` for a hot-reloading server at `http://localhost:5173` (requires the same `web/.env.local`).
+To deploy to your own account, create an S3 bucket with static website hosting enabled and update the `deploy:web` script in `package.json` to reference your bucket name before running it.
 
 ## Testing the Solution
 
