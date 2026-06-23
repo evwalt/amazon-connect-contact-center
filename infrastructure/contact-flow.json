@@ -1,12 +1,19 @@
 {
   "Version": "2019-10-30",
-  "StartAction": "Set Voice",
+  "StartAction": "Set Logging Behavior",
   "Metadata": {
     "entryPointPosition": {
       "x": -480,
       "y": 57.6
     },
     "ActionMetadata": {
+      "Set Logging Behavior": {
+        "position": {
+          "x": -383.2,
+          "y": 56.8
+        },
+        "isFriendlyName": true
+      },
       "Set Voice": {
         "position": {
           "x": -160,
@@ -56,6 +63,16 @@
     "hash": {}
   },
   "Actions": [
+    {
+      "Parameters": {
+        "FlowLoggingBehavior": "Enabled"
+      },
+      "Identifier": "Set Logging Behavior",
+      "Type": "UpdateFlowLoggingBehavior",
+      "Transitions": {
+        "NextAction": "Set Voice"
+      }
+    },
     {
       "Parameters": {
         "TextToSpeechVoice": "Matthew"
