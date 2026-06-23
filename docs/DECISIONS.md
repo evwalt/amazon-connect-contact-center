@@ -6,7 +6,7 @@ This document records the key decisions made during architecture and implementat
 - [2. Call Log vs. Upsert Design](#2-call-log-vs-upsert-design)
 - [3. DynamoDB Table Design](#3-dynamodb-table-design)
 - [4. Language and Runtime](#4-language-and-runtime)
-- [5. IaC Tool: AWS SAM](#5-iac-tool-aws-sam)
+- [5. IaC Tool: SAM (original) + CDK (recommended)](#5-iac-tool-sam-original--cdk-recommended)
 - [6. Web App: Cloudscape React + Vite](#6-web-app-cloudscape-react--vite)
 - [7. API Design: HTTP API vs. REST API](#7-api-design-http-api-vs-rest-api)
 - [8. Vanity Number Scope: 7-Digit Subscriber Number Only](#8-vanity-number-scope-7-digit-subscriber-number-only)
@@ -129,25 +129,23 @@ Node.js 20.x for both Lambdas.
 
 ---
 
-## 5. IaC Tool: AWS SAM
+## 5. IaC Tool: SAM (original) + CDK (recommended)
 
 ### Decision
 
-AWS SAM for all infrastructure.
+AWS SAM was the initial deployment tool. AWS CDK (`infrastructure/cdk/`) is the final and recommended deployment path.
 
-### Why
+### Why SAM Initially
 
-SAM is purpose-built for Lambda + API Gateway workloads. It requires less boilerplate than CDK for this scope and is more accessible to reviewers deploying into their own accounts without installing CDK dependencies. The `sam deploy --guided` flow is intentionally reviewer-friendly.
+SAM is purpose-built for Lambda + API Gateway workloads. It requires less boilerplate than CDK for this scope and the `sam deploy --guided` flow is reviewer-friendly. CDK was initially deferred because it requires a bootstrap step and is more setup friction for a first-time deployer.
 
-### What SAM Cannot Do Cleanly
+### Why CDK Is Now Recommended
 
-SAM does not natively manage CloudFront distributions. The S3 bucket hosting the dashboard is provisioned outside the SAM stack via CLI (see §12). In production, SAM would be replaced with CDK to manage S3 + CloudFront together cleanly.
+CDK automates everything SAM leaves manual: the contact flow is deployed from `infrastructure/contact-flow.json` via `AwsCustomResource`, the Lambda permission grant to Amazon Connect is automated, Set Voice and Set Logging are deployed as part of the flow definition, and the phone number is associated to the flow automatically. A reviewer running `cdk deploy` with `CONNECT_INSTANCE_ID` and `CONNECT_PHONE_NUMBER_ID` set needs no manual console steps. The SAM path remains available but requires manual Connect wiring after deploy (see `README.md`).
 
-### Alternative Considered
+### What Neither Stack Manages
 
-**AWS CDK**: More powerful, better TypeScript integration, cleaner CloudFront support. Initially rejected because it requires a CDK bootstrap step and is more setup friction for a reviewer deploying from scratch.
-
-**Update:** A CDK stack was subsequently added at `infrastructure/cdk/` as an enhancement. It deploys the same core resources and additionally automates contact flow deployment and phone number association via `AwsCustomResource`. The SAM path remains available as an alternative. See `infrastructure/cdk/README.md` for the CDK deployment guide.
+The web dashboard S3 bucket is provisioned outside both stacks (see §12).
 
 ---
 
@@ -254,17 +252,17 @@ Storing more than is immediately surfaced is a standard pattern: the presentatio
 
 ### Decision
 
-Host the dashboard on an S3 static website endpoint (HTTP only). The bucket is provisioned outside the SAM stack via CLI and deployed with `npm run deploy:web`.
+Host the dashboard on an S3 static website endpoint (HTTP only). The bucket is provisioned outside either stack and deployed with `npm run deploy:web`, which targets the author's account-specific bucket.
 
 ### Why Not CloudFront
 
-Adding CloudFront would require a distribution, an ACM certificate (with DNS validation), an origin access control policy, and either a CDK rewrite or manual console configuration — none of which is the focus of this assignment. The incremental complexity is significant relative to the benefit.
+Adding CloudFront would require a distribution, an ACM certificate (with DNS validation), and an origin access control policy — none of which is the focus of this assignment. The incremental complexity is significant relative to the benefit.
 
 The dashboard contains no authentication, no PII, and performs no sensitive operations. The only data it exposes is vanity number mappings — the same data spoken aloud by the IVR. HTTP is an acceptable risk for a demo deployment.
 
-### Why Not SAM-Managed S3
+### Why Not Stack-Managed S3
 
-SAM does not natively manage CloudFront distributions. Adding S3 website hosting to the SAM template without CloudFront would require a bucket, bucket policy, and website configuration resource — and would still produce an HTTP endpoint. Keeping the bucket outside the SAM stack avoids complicating the primary deployment path for a feature that is explicitly bonus scope.
+Even with CDK available, the dashboard S3 bucket was intentionally kept outside both stacks to avoid coupling the backend deployment (which a reviewer can fully reproduce) to an S3 bucket that is tied to the author's account. The `deploy:web` script is not portable as-is; a reviewer deploying into their own account must create a bucket manually and update the script. The production path — CDK managing the bucket, CloudFront distribution, and ACM certificate together — is the right solution but was deferred as out of scope for a demo deployment.
 
 ### Production Path
 
