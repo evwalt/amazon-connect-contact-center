@@ -189,9 +189,15 @@ export class VanityNumberStack extends cdk.Stack {
         ]),
       });
 
+      // AwsCustomResource wraps an inner CustomResource child named 'Resource'.
+      // Its Ref == physical resource ID, which was set to ContactFlowId on onCreate
+      // and is retained on every update. getResponseField('ContactFlowId') would break
+      // on UPDATE because updateContactFlowContent returns {} and clears Data.ContactFlowId.
+      const contactFlowId = (contactFlow.node.findChild('Resource') as cdk.CustomResource).ref;
+
       new cdk.CfnOutput(this, 'ContactFlowId', {
         description: 'Amazon Connect contact flow ID — assign to your claimed phone number.',
-        value: contactFlow.getResponseField('ContactFlowId'),
+        value: contactFlowId,
       });
 
       const phoneNumberId = props?.phoneNumberId;
@@ -207,25 +213,17 @@ export class VanityNumberStack extends cdk.Stack {
             parameters: {
               InstanceId: connectInstanceId,
               PhoneNumberId: phoneNumberId,
-              ContactFlowId: contactFlow.getResponseField('ContactFlowId'),
+              ContactFlowId: contactFlowId,
             },
             // associatePhoneNumberContactFlow returns {} — use a static physical ID.
             physicalResourceId: cr.PhysicalResourceId.of(
               `${connectInstanceId}:${phoneNumberId}`,
             ),
           },
-          onUpdate: {
-            service: 'Connect',
-            action: 'associatePhoneNumberContactFlow',
-            parameters: {
-              InstanceId: connectInstanceId,
-              PhoneNumberId: phoneNumberId,
-              ContactFlowId: contactFlow.getResponseField('ContactFlowId'),
-            },
-            physicalResourceId: cr.PhysicalResourceId.of(
-              `${connectInstanceId}:${phoneNumberId}`,
-            ),
-          },
+          // No onUpdate: contact flow content updates must not re-run this association.
+          // updateContactFlowContent returns {} so getResponseField('ContactFlowId') would
+          // resolve to empty, causing the associate API call to fail with an invalid ID.
+          // The association is permanent once set; a content change doesn't affect routing.
           installLatestAwsSdk: false,
           policy: cr.AwsCustomResourcePolicy.fromStatements([
             new iam.PolicyStatement({

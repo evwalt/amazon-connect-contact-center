@@ -1,12 +1,19 @@
 {
   "Version": "2019-10-30",
-  "StartAction": "Generate Vanity Numbers",
+  "StartAction": "Set Voice",
   "Metadata": {
     "entryPointPosition": {
-      "x": -27.2,
+      "x": -480,
       "y": 57.6
     },
     "ActionMetadata": {
+      "Set Voice": {
+        "position": {
+          "x": -160,
+          "y": 56.8
+        },
+        "isFriendlyName": true
+      },
       "Read Vanity Results": {
         "position": {
           "x": 366.4,
@@ -49,6 +56,16 @@
     "hash": {}
   },
   "Actions": [
+    {
+      "Parameters": {
+        "TextToSpeechVoice": "Matthew"
+      },
+      "Identifier": "Set Voice",
+      "Type": "UpdateContactTextToSpeechVoice",
+      "Transitions": {
+        "NextAction": "Generate Vanity Numbers"
+      }
+    },
     {
       "Parameters": {
         "SkipWhenDTMFBufferEnabled": "false",
