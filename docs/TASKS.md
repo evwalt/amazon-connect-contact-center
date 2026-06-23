@@ -48,4 +48,4 @@
 
 ## Later
 
-- [ ] Prepare for panel interview against assignment requirements, feedback from Matt, and any existing or additional tips from Matt
+- [ ] Prepare for panel interview against assignment requirements, feedback, and any existing or additional tips
