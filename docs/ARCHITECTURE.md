@@ -67,7 +67,7 @@ DynamoDB: VanityCallLog
 ### Amazon Connect
 
 - Claimed phone number routes inbound calls to a contact flow.
-- Contact flow sets TTS voice (Matthew), checks for caller ID, invokes the VanityConverter Lambda, and speaks the result.
+- Contact flow enables flow logging, sets TTS voice (Matthew), invokes the VanityConverter Lambda, and speaks the result.
 - The contact flow is deployed as code from `infrastructure/contact-flow.json` via the CDK stack. The flow structure is documented in the [Contact Flow Design](#contact-flow-design) section below.
 
 ### VanityConverter Lambda
@@ -141,10 +141,10 @@ React + Vite + [Cloudscape Design System](https://cloudscape.design/). Deployed 
 
 1. Caller dials the Connect number.
 2. Connect passes the call to the contact flow.
-3. Contact flow checks `CustomerEndpoint.Address`. If null, plays an error and disconnects.
+3. Contact flow enables logging and sets TTS voice (Matthew).
 4. Contact flow invokes VanityConverter Lambda with the Connect event payload.
-5. Lambda extracts the caller number, runs the vanity algorithm, writes to DynamoDB, returns top 3.
-6. Contact flow reads `vanity1`, `vanity2`, `vanity3` from Lambda response attributes and speaks them via TTS.
+5. Lambda extracts the caller number (returning empty vanity strings if absent), runs the vanity algorithm, writes to DynamoDB, returns top 3.
+6. Contact flow reads `vanity1`, `vanity2`, `vanity3` from Lambda response attributes and speaks them via TTS. If the Lambda throws or times out, routes to an error message instead.
 7. Contact flow disconnects.
 
 ## Data Flow: Web App
@@ -205,7 +205,7 @@ Amazon Connect requires a flat `string → string` map. Nested objects and array
 }
 ```
 
-The contact flow checks `$.Attributes.status`. An `"error"` value routes to the error branch.
+The contact flow's error branch is triggered by Lambda invocation failures (exceptions or timeouts), not by this status value.
 
 ### RecentCallers — Output
 
