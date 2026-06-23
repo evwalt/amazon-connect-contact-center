@@ -50,3 +50,8 @@
 ## Later
 
 - [ ] Prepare for panel interview against assignment requirements, feedback, and any existing or additional tips
+- [ ] CDK-managed web dashboard deployment (S3 + CloudFront + HTTPS)
+- [ ] Integration tests against deployed AWS resources
+- [ ] Real-time dashboard updates (WebSocket or AppSync)
+- [ ] Operational observability (CloudWatch alarms, X-Ray tracing)
+- [ ] API authentication for dashboard access
