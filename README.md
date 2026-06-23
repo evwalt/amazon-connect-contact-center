@@ -170,8 +170,8 @@ To deploy to your own account, create an S3 bucket with static website hosting e
 ## Testing the Solution
 
 1. Call **+1 (888) 213-1948** from any phone.
-2. Listen for 3 vanity number options.
-3. Open the [live dashboard](http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com) — your number should appear as the most recent caller.
+2. Listen for 3 vanity number options. (The subscriber portion of this number contains two digits that have no telephone keypad letter mapping — vanity results will include literal digits in those positions. See [DECISIONS.md §1](docs/DECISIONS.md#1-defining-best-vanity-numbers) for the edge-case documentation.)
+3. Open the [live dashboard](http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com) — your number should appear as the most recent caller. Reload the page if you opened it before calling.
 
 ## Screenshots
 
