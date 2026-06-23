@@ -133,7 +133,7 @@ After deploying:
 3. Build the contact flow manually in the Connect console. See [docs/ARCHITECTURE.md — Contact Flow Design](docs/ARCHITECTURE.md#contact-flow-design) for the exact flow structure.
 4. Assign the contact flow to your claimed phone number.
 
-### 4. Deploy the web dashboard
+#### 4. Deploy the web dashboard
 
 The dashboard is hosted on S3 at:
 
