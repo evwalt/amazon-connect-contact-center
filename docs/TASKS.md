@@ -39,10 +39,11 @@
 - [x] Validate live phone routing to CDK-managed contact flow
 - [x] Add Set Voice block to contact flow
 - [x] Validate Matthew voice in live phone call
+- [x] Add Set Logging block to contact flow
+- [x] Validate Connect CloudWatch logging
 
 ## Next
 
-- [ ] Add Set Logging block to contact flow
 - [ ] Improve vanity number quality
 - [ ] CloudFront + HTTPS for dashboard
 
