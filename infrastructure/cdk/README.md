@@ -131,7 +131,9 @@ This rebuilds the Vite bundle and syncs it to the existing S3 bucket. The dashbo
 |---|---|---|
 | DynamoDB, Lambdas, API Gateway | ✅ | ✅ |
 | Lambda `addPermission` for Connect | Manual console step | ✅ Automated |
-| Contact flow deployment | Manual console build | ✅ Automated (`connectInstanceId` required) |
+| Contact flow deployment | Manual console import | ✅ Automated (`connectInstanceId` required) |
+| Contact flow: Set logging behavior | ✅ | ✅ |
+| Contact flow: Set voice (Matthew) | ✅ | ✅ |
 | Phone number → flow association | Manual console step | ✅ Automated (`phoneNumberId` required) |
 | AWS SDK in Lambda bundle | Bundled by esbuild | Provided by Node.js 20.x runtime |
 | DynamoDB on stack delete | Deleted | Retained (`RemovalPolicy.RETAIN`) |
