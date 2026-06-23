@@ -45,8 +45,8 @@ The word list and blocklist are static files bundled with the Lambda. Updating t
 **6. No input sanitization on the API**
 The `/callers` endpoint takes no user input (it's a simple GET), so there is no injection surface. However, if query parameters were added (e.g., filtering by date), input validation would be required. The Lambda does sanitize the phone number extracted from the Connect event (validates E.164 format before processing).
 
-**7. Contact flow cannot be fully automated**
-The Connect contact flow requires manual ARN substitution after import. The Lambda ARN is environment-specific and must be updated in the imported flow before it will work. In production, the contact flow would be managed via the Connect APIs (or `aws connect create-contact-flow`) as part of the SAM deployment, eliminating this manual step.
+**7. Contact flow automation (resolved in CDK path)**
+The original SAM deployment required manual ARN substitution after importing the contact flow — the Lambda ARN is environment-specific. This was resolved in the CDK stack: at synth time, the hardcoded ARN in `infrastructure/contact-flow.json` is replaced with a `Fn::Sub` placeholder, and the CDK `AwsCustomResource` calls `createContactFlow` / `updateContactFlowContent` directly, eliminating the manual step. The SAM path still requires manual wiring.
 
 **8. No observability beyond CloudWatch defaults**
 Structured logging with correlation IDs (the Connect `ContactId`) is implemented, but there are no CloudWatch alarms, dashboards, or X-Ray tracing configured. In production: alarms on Lambda error rate and duration, X-Ray for distributed tracing across Lambda and DynamoDB, and a dashboard showing call volume and vanity generation success rate.
@@ -67,8 +67,8 @@ The scoring formula is simple and works, but it doesn't account for word frequen
 **Area code vanity mapping**
 The current implementation only converts the 7-digit subscriber number. A natural extension is to also generate vanity candidates for the full 10-digit number (area code + subscriber), or specifically for toll-free area codes (800, 888, etc.) where the area code is already part of the brand identity.
 
-**Contact flow as code**
-The contact flow is built manually in the Amazon Connect console (see ARCHITECTURE.md for the exact structure). The Amazon Connect APIs support creating and updating contact flows programmatically. With more time, I'd add a SAM custom resource or a deploy script that creates/updates the contact flow via API, eliminating the manual build step.
+**Contact flow as code** *(implemented)*
+The contact flow is now deployed as code from `infrastructure/contact-flow.json` via the CDK stack (`infrastructure/cdk/`). The CDK `AwsCustomResource` calls the Connect API to create or update the flow on every `cdk deploy`, and phone number association is also automated. The SAM path still requires a manual import.
 
 **Call history per caller**
 The current web app shows the 5 most recent call events globally. A useful extension would be a per-caller history view — click on a number to see all past calls and their vanity results. This is supported by the call log schema (query by PK = callerNumber) without schema changes.
@@ -90,4 +90,10 @@ The most significant sharp edge in this project is the Amazon Connect requiremen
 Getting the "last 5 callers" query right required understanding that a fixed-partition GSI is the correct primitive for sorted global queries in DynamoDB, even though it is an acknowledged anti-pattern at scale. The intuitive alternative (scan + client sort) is wrong in principle even when it works in practice. Documenting this distinction was important.
 
 **Contact flow ARN substitution**
-Amazon Connect contact flows store Lambda ARNs directly in the exported JSON. This means the exported flow is environment-specific and cannot be imported into a different account without manual ARN updates. This is a known limitation of the Connect console export format. The alternative (managing flows via API) is the correct production approach but adds significant complexity to the deployment story for a take-home assignment.
+Amazon Connect contact flows store Lambda ARNs directly in the exported JSON. This means the exported flow is environment-specific and cannot be imported into a different account without manual ARN updates. This is a known limitation of the Connect console export format. The CDK stack resolves this by replacing the hardcoded ARN with a `Fn::Sub` placeholder at synth time.
+
+**CDK AwsCustomResource — ContactFlowId across create vs. update lifecycles**
+The CDK `AwsCustomResource` for the contact flow uses `createContactFlow` on `onCreate` (which returns `ContactFlowId`) and `updateContactFlowContent` on `onUpdate` (which returns `{}`). Using `getResponseField('ContactFlowId')` to pass the ID to downstream resources compiles to a CloudFormation `GetAtt` on `Data.ContactFlowId`. After any update, `Data` is `{}` and the attribute disappears, causing downstream resources to fail with "Vendor response doesn't contain ContactFlowId attribute." The fix is to use the custom resource's physical resource ID (`node.findChild('Resource').ref`) instead — it is set to the `ContactFlowId` on `onCreate` and retained on every subsequent update, independent of the API response payload.
+
+**Set Logging — Connect API schema incompatibility**
+The Connect console allows enabling flow logging via a "Set logging behavior" block. However, the API-format contact flow schema (used by `createContactFlow` / `updateContactFlowContent`) and the visual-designer export format are not the same. The correct action type (`UpdateFlowLoggingBehavior`) was identified, but no combination of parameter values accepted by the API could be determined. All values for the `FlowLoggingBehavior` parameter were rejected, and the parameter format is not documented for the API schema. Rather than ship a flow that might fail silently or behave unexpectedly, this block was left out. The safe resolution is to configure logging in the Connect console, then `describe-contact-flow` to extract the exact API-format JSON, and incorporate that into `contact-flow.json`.

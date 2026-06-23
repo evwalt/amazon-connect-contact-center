@@ -145,7 +145,9 @@ SAM does not natively manage CloudFront distributions. The S3 bucket hosting the
 
 ### Alternative Considered
 
-**AWS CDK**: More powerful, better TypeScript integration, cleaner CloudFront support. Rejected because it requires a CDK bootstrap step and is more setup friction for a reviewer deploying from scratch.
+**AWS CDK**: More powerful, better TypeScript integration, cleaner CloudFront support. Initially rejected because it requires a CDK bootstrap step and is more setup friction for a reviewer deploying from scratch.
+
+**Update:** A CDK stack was subsequently added at `infrastructure/cdk/` as an enhancement. It deploys the same core resources and additionally automates contact flow deployment and phone number association via `AwsCustomResource`. The SAM path remains available as an alternative. See `infrastructure/cdk/README.md` for the CDK deployment guide.
 
 ---
 
