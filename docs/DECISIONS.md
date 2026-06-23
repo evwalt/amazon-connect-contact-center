@@ -181,7 +181,7 @@ HTTP API is lower cost (~$1/million requests vs. ~$3.50 for REST API), has lower
 
 ### CORS
 
-CORS is explicitly configured on the HTTP API (`AllowOrigins: *`) to allow the locally-served Vite app to call the API from a different origin. This is a common gotcha when the web app and API are on different origins — it is handled in the SAM template, not discovered at demo time.
+CORS is explicitly configured on the HTTP API (`AllowOrigins: *`) to allow the locally-served Vite app to call the API from a different origin. This is a common gotcha when the web app and API are on different origins — it is handled in the infrastructure stack, not discovered at demo time.
 
 ---
 
@@ -228,7 +228,7 @@ A smaller word list may miss valid vanity candidates that a larger dictionary wo
 
 ### Decision
 
-Set the Lambda timeout in the SAM template to 10 seconds. Set the timeout in the Connect contact flow's "Invoke Lambda" block to 8 seconds.
+The Lambda timeout is 10 seconds (configured in both the SAM template and CDK stack). The Connect contact flow's "Invoke Lambda" block sets a separate 8-second timeout.
 
 ### Why
 
