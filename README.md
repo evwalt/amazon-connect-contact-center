@@ -17,7 +17,7 @@ Call the number from any phone to hear 3 vanity options. Your call appears in th
 |---|---|---|
 | ✅ | Vanity number Lambda — converts caller number, scores candidates, stores top 5 in DynamoDB, returns top 3 | `src/vanity-converter/` |
 | ✅ | Amazon Connect contact flow — speaks top 3 results via TTS | [Contact flow design](docs/ARCHITECTURE.md#contact-flow-design) |
-| ✅ *bonus* | SAM deployment package + setup instructions | `infrastructure/template.yaml` |
+| ✅ *bonus* | SAM + CDK deployment packages with full setup instructions | `infrastructure/template.yaml`, `infrastructure/cdk/` |
 | ✅ *super bonus* | Cloudscape React dashboard — last 5 callers, publicly hosted | [Live dashboard](http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com) · `web/` |
 | ✅ | Design decisions and rationale (12 documented) | [docs/DECISIONS.md](docs/DECISIONS.md) |
 | ✅ | Struggles, shortcuts, and more-time items | [docs/ENGINEERING_NOTES.md](docs/ENGINEERING_NOTES.md) |
@@ -43,8 +43,9 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture diagr
 
 - Node.js 20.x
 - AWS CLI configured with appropriate credentials
-- AWS SAM CLI (`brew install aws-sam-cli`)
 - An Amazon Connect instance with a claimed phone number
+- **CDK deployment (recommended):** AWS CDK CLI (`npm install -g aws-cdk`) — automates contact flow and phone number association
+- **SAM deployment (original):** AWS SAM CLI (`brew install aws-sam-cli`) — deploys Lambda/DynamoDB/API; Connect wiring is manual
 
 ## Project Structure
 
@@ -55,7 +56,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture diagr
 │   └── recent-callers/     # Lambda invoked by API Gateway for the web app
 ├── tests/unit/             # Jest unit tests (95 tests, 100% coverage)
 ├── web/                    # Cloudscape React app (Vite)
-├── infrastructure/         # SAM template
+├── infrastructure/         # SAM template + CDK stack
 ├── docs/                   # Architecture, decisions, engineering notes
 └── scripts/                # Local dev helpers (demo-vanity)
 ```
@@ -88,25 +89,42 @@ npm run build:sam
 
 ## Deployment
 
-### 1. Build Lambda bundles
+Two deployment paths are available. **CDK is recommended** — it deploys all infrastructure including the contact flow and phone number association automatically.
+
+### CDK (recommended)
+
+See [`infrastructure/cdk/README.md`](infrastructure/cdk/README.md) for full instructions. Summary:
+
+```bash
+cd infrastructure/cdk && npm install
+export CONNECT_INSTANCE_ID=<your-instance-id>
+export CONNECT_PHONE_NUMBER_ID=<your-phone-number-id>
+npm run deploy
+```
+
+This deploys Lambda, DynamoDB, API Gateway, the contact flow, and associates the phone number — no manual Connect console steps required.
+
+### SAM (original)
+
+#### 1. Build Lambda bundles
 
 ```bash
 npm run build:sam
 ```
 
-### 2. Deploy (guided first run)
+#### 2. Deploy (guided first run)
 
 ```bash
 sam deploy --template-file infrastructure/template.yaml --guided
 ```
 
-This prompts for stack name, region, and IAM capability confirmation. Settings are saved to `samconfig.toml`. Subsequent deploys:
+Settings are saved to `samconfig.toml`. Subsequent deploys:
 
 ```bash
 sam deploy --template-file infrastructure/template.yaml
 ```
 
-### 3. Wire up Amazon Connect
+#### 3. Wire up Amazon Connect
 
 After deploying:
 
@@ -114,8 +132,6 @@ After deploying:
 2. In the Amazon Connect console, go to **AWS Lambda** and add the function ARN to the allowed list.
 3. Build the contact flow manually in the Connect console. See [docs/ARCHITECTURE.md — Contact Flow Design](docs/ARCHITECTURE.md#contact-flow-design) for the exact flow structure.
 4. Assign the contact flow to your claimed phone number.
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for step-by-step Connect setup instructions.
 
 ### 4. Deploy the web dashboard
 

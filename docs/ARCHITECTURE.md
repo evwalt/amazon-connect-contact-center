@@ -69,14 +69,14 @@ DynamoDB: VanityCallLog
 ### Amazon Connect
 
 - Claimed phone number routes inbound calls to a contact flow.
-- Contact flow checks for caller ID, invokes the VanityConverter Lambda, and speaks the result.
-- The contact flow is built manually in the Connect console. The flow structure is documented in the [Contact Flow Design](#contact-flow-design) section below.
+- Contact flow sets TTS voice (Matthew), checks for caller ID, invokes the VanityConverter Lambda, and speaks the result.
+- The contact flow is deployed as code from `infrastructure/contact-flow.json` via the CDK stack. The flow structure is documented in the [Contact Flow Design](#contact-flow-design) section below.
 
 ### VanityConverter Lambda
 
 **Runtime:** Node.js 20.x  
 **Trigger:** Amazon Connect (synchronous invocation from contact flow)  
-**Timeout:** 10 seconds (set in SAM template). The Connect contact flow's "Invoke AWS Lambda function" block is separately configured to 8 seconds — the Lambda timeout is intentionally higher so Connect's timeout fires first and the error branch handles it gracefully.
+**Timeout:** 10 seconds (Lambda). The Connect contact flow's "Invoke AWS Lambda function" block is separately configured to 8 seconds — the Lambda timeout is intentionally higher so Connect's timeout fires first and the error branch handles it gracefully.
 
 Responsibilities:
 
@@ -232,36 +232,33 @@ The contact flow checks `$.Attributes.status`. An `"error"` value routes to the 
 
 ## Contact Flow Design
 
-The contact flow has three branches:
+The contact flow source of truth is `infrastructure/contact-flow.json`, deployed via the CDK stack. It has the following structure:
 
 ```
 [Start]
     │
     ▼
-[Check CustomerEndpoint.Address]
-    ├─ [null/empty] ──► [Play: "We could not identify your number. Goodbye."] ──► [End]
+[Set Voice: Matthew]
     │
     ▼
 [Invoke Lambda: VanityConverter, timeout 8s]
-    ├─ [error/timeout] ──► [Play: "We encountered an error. Please try again later. Goodbye."] ──► [End]
+    ├─ [error/timeout] ──► [Play: "Sorry, something went wrong. Please try again later."] ──► [End]
     │
     ▼
-[Play prompt]:
-  "We found vanity numbers for your phone number.
-   Option 1: <vanity1>
-   Option 2: <vanity2>
-   Option 3: <vanity3>
-   Thank you for calling. Goodbye."
+[Play TTS]:
+  "Your top vanity phone numbers are <vanity1>, <vanity2>, and <vanity3>. Goodbye."
     │
     ▼
 [End]
 ```
 
-The TTS prompt references Connect flow attributes `$.Attributes.vanity1`, `$.Attributes.vanity2`, and `$.Attributes.vanity3` set by the Lambda response.
+The TTS prompt references Connect external attributes `$.External.vanity1`, `$.External.vanity2`, and `$.External.vanity3` set by the Lambda response. The Lambda ARN is injected at deploy time via `Fn::Sub` so the JSON source file remains environment-agnostic.
 
-## Amazon Connect Setup (Manual Steps)
+## Amazon Connect Setup
 
-After running `sam deploy`:
+**CDK path (recommended):** Steps 2–6 below are fully automated. Deploy with `CONNECT_INSTANCE_ID` and `CONNECT_PHONE_NUMBER_ID` set — the CDK stack creates the contact flow, adds the Lambda permission, and associates the phone number.
+
+**SAM path (manual):** After running `sam deploy`:
 
 1. Open the Amazon Connect console and navigate to your instance.
 2. Under **AWS Lambda**, add the `VanityConverterFunction` ARN (from SAM output) to the allowed Lambda list.
@@ -273,13 +270,15 @@ After running `sam deploy`:
 
 ## Infrastructure
 
-Managed with AWS SAM. Key resources in `infrastructure/template.yaml`:
+Two deployment paths are available. CDK (`infrastructure/cdk/`) is the primary path; SAM (`infrastructure/template.yaml`) is the original and deploys the same core resources.
 
-| Resource | Type |
-|---|---|
-| VanityConverterFunction | AWS::Serverless::Function |
-| RecentCallersFunction | AWS::Serverless::Function |
-| VanityCallLogTable | AWS::DynamoDB::Table |
-| RecentCallersApi | AWS::Serverless::HttpApi |
+| Resource | SAM type | CDK construct |
+|---|---|---|
+| VanityConverterFunction | AWS::Serverless::Function | NodejsFunction |
+| RecentCallersFunction | AWS::Serverless::Function | NodejsFunction |
+| VanityCallLogTable | AWS::DynamoDB::Table | dynamodb.Table |
+| RecentCallersApi | AWS::Serverless::HttpApi | apigwv2.HttpApi |
+| Contact flow | Manual import | AwsCustomResource (Connect API) |
+| Phone number association | Manual console step | AwsCustomResource (Connect API) |
 
 IAM follows least-privilege: each Lambda has only the DynamoDB actions it requires (`PutItem` for VanityConverter, `Query` for RecentCallers).
