@@ -110,11 +110,11 @@ The deploy produces the same three outputs as the SAM stack:
 | `VanityCallLogTableName` | DynamoDB table name |
 | `RecentCallersApiUrl` | `GET /callers` endpoint for the web app |
 
-If `connectInstanceId` was set, a fourth output appears:
+If `CONNECT_INSTANCE_ID` was set
 
 | Output | Description |
 |---|---|
-| `ContactFlowId` | Connect contact flow ID — already associated to your phone number if `phoneNumberId` was also set |
+| `ContactFlowId` | Connect contact flow ID — already associated to your phone number if `CONNECT_PHONE_NUMBER_ID` was also set |
 
 ## Step 5: Update and redeploy the web app
 

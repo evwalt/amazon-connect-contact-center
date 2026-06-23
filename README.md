@@ -7,7 +7,7 @@ A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact 
 | Item | Value |
 |---|---|
 | **Phone number** | +1 (888) 213-1948 |
-| **Live dashboard** | http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com |
+| **Live dashboard** | <http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com> |
 
 Call the number from any phone to hear 3 vanity options. Your call appears in the dashboard within seconds.
 
@@ -102,7 +102,7 @@ export CONNECT_PHONE_NUMBER_ID=<your-phone-number-id>
 npm run deploy
 ```
 
-This deploys Lambda, DynamoDB, API Gateway, the contact flow, and associates the phone number — no manual Connect console steps required.
+This deploys Lambda, DynamoDB, API Gateway, the contact flow, and associates the phone number — no manual Connect console steps required. The web dashboard is deployed separately with `npm run deploy:web` after setting `web/.env.local` to the CDK `RecentCallersApiUrl` output.
 
 ### SAM (original)
 
@@ -137,7 +137,7 @@ After deploying:
 
 The dashboard is hosted on S3 at:
 
-> **http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com**
+> **<http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com>**
 
 To redeploy after changes (requires `web/.env.local` with `VITE_API_URL` set):
 
@@ -150,7 +150,7 @@ This rebuilds the Vite bundle and syncs `web/dist/` to S3.
 **Local development alternative:** run `npm run dev:web` for a hot-reloading dev server at `http://localhost:5173`. Requires `web/.env.local`:
 
 ```bash
-echo "VITE_API_URL=https://easj5hexd1.execute-api.us-west-2.amazonaws.com" > web/.env.local
+echo "VITE_API_URL=https://<api-id>.execute-api.us-west-2.amazonaws.com" > web/.env.local
 npm run dev:web
 ```
 
