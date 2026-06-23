@@ -6,9 +6,12 @@
     "build": "tsc --noEmit",
     "cdk": "cdk",
     "synth": "cdk synth",
-    "deploy": "cdk deploy",
     "diff": "cdk diff",
-    "destroy": "cdk destroy"
+    "deploy": "cdk deploy",
+    "destroy": "cdk destroy",
+    "synth:env": "set -a; [ -f .env.local ] && . ./.env.local; set +a; cdk synth",
+    "diff:env": "set -a; [ -f .env.local ] && . ./.env.local; set +a; cdk diff",
+    "deploy:env": "set -a; [ -f .env.local ] && . ./.env.local; set +a; cdk deploy"
   },
   "dependencies": {
     "aws-cdk-lib": "^2.200.0",

@@ -72,7 +72,9 @@ Option B — prefix on the deploy command:
 CONNECT_INSTANCE_ID=xxxxxxxx CONNECT_PHONE_NUMBER_ID=xxxxxxxx npm run deploy
 ```
 
-Option C — create a local `.env` file (already gitignored) and source it:
+Option C — `.env.local` file (recommended for repeated local use):
+
+Create `infrastructure/cdk/.env.local` (already gitignored by the root `.gitignore`):
 
 ```bash
 # infrastructure/cdk/.env.local
@@ -80,22 +82,22 @@ CONNECT_INSTANCE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 CONNECT_PHONE_NUMBER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-```bash
-source infrastructure/cdk/.env.local
-```
+Then use the `*:env` scripts (Step 4 below) — they source `.env.local` automatically before running CDK.
 
 ## Step 4: Deploy
 
-From `infrastructure/cdk/`:
+The `*:env` scripts source `.env.local` automatically so no prefix or export is needed:
+
+```bash
+npm run synth:env   # synthesize and print the CloudFormation template
+npm run diff:env    # show what will change vs. the deployed stack
+npm run deploy:env  # deploy (prompts for IAM/security confirmation)
+```
+
+Or, if you exported the variables via Option A or B above, the plain scripts work the same:
 
 ```bash
 npm run deploy
-```
-
-Or from the repo root:
-
-```bash
-npm run deploy:cdk
 ```
 
 CDK will show a summary of IAM and security changes and prompt for confirmation before deploying.
