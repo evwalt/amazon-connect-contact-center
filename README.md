@@ -1,6 +1,6 @@
 # Amazon Connect Vanity Number Generator
 
-A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact flow that converts caller phone numbers to vanity numbers, stores and ranks results in DynamoDB, announces the top matches through text-to-speech, and exposes recent call activity through a Cloudscape React dashboard.
+A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact flow that converts caller phone numbers to vanity numbers, stores and ranks results in DynamoDB, announces the top matches using Amazon Connect text-to-speech (Matthew voice), and exposes recent call activity through a Cloudscape React dashboard.
 
 ## Quick Review
 
@@ -8,6 +8,16 @@ A take-home assignment for TTEC Digital demonstrating an Amazon Connect contact 
 |---|---|
 | **Phone number** | +1 (888) 213-1948 |
 | **Live dashboard** | <http://vanity-web-141262468065.s3-website-us-west-2.amazonaws.com> |
+
+## Highlights
+
+- CDK-based infrastructure deployment (preferred final deployment path)
+- Amazon Connect contact flow deployed automatically through CDK
+- Automatic Amazon Connect phone number association through CDK
+- Custom Amazon Connect voice configuration (Matthew)
+- Amazon Connect flow logging enabled through infrastructure-as-code
+- Cloudscape React dashboard showing the 5 most recent callers
+- 95 automated tests with 100% coverage
 
 Call the number from any phone to hear 3 vanity options. Your call appears in the dashboard within seconds.
 
@@ -25,7 +35,8 @@ Call the number from any phone to hear 3 vanity options. Your call appears in th
 
 ## Table of Contents
 
-- [Assignment Coverage](#assignment-coverage)
+- [Quick Review](#quick-review)
+- [Highlights](#highlights)
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [Project Structure](#project-structure)
