@@ -121,7 +121,7 @@ If `CONNECT_INSTANCE_ID` was set
 The live S3 dashboard (`deploy:web`) is built against the API URL of whichever stack was last used to build it. After deploying the CDK stack, note the `RecentCallersApiUrl` output and rebuild:
 
 ```bash
-echo "VITE_API_URL=https://<cdk-api-id>.execute-api.us-west-2.amazonaws.com" > web/.env.local
+echo "VITE_API_URL=<RecentCallersApiUrl>" > web/.env.local
 npm run deploy:web
 ```
 

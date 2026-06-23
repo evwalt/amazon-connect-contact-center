@@ -150,7 +150,7 @@ This rebuilds the Vite bundle and syncs `web/dist/` to S3.
 **Local development alternative:** run `npm run dev:web` for a hot-reloading dev server at `http://localhost:5173`. Requires `web/.env.local`:
 
 ```bash
-echo "VITE_API_URL=https://<api-id>.execute-api.us-west-2.amazonaws.com" > web/.env.local
+echo "VITE_API_URL=<RecentCallersApiUrl>" > web/.env.local
 npm run dev:web
 ```
 
